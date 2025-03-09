@@ -36,7 +36,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public Schedule createSchedule(Schedule schedule) {
-        // Date currentDateTime = new Date(System.currentTimeMillis());
+        // 更新日を今の日時に設定する
         LocalDateTime currentDateTime = LocalDateTime.now();
         schedule.setUpdateTime(currentDateTime);
         return scheduleRepository.save(schedule);
@@ -46,19 +46,28 @@ public class ScheduleServiceImpl implements ScheduleService {
     public Schedule updateSchedule(Long id, Schedule requestBody) {
         Schedule schedule = getSchedule(id);
 
-        String new_title = requestBody.getTitle() == null ? schedule.getTitle() : requestBody.getTitle();
-        schedule.setTitle(new_title);
+        // リクエストの各値がnullでない場合は値を更新する
+        // nullの場合は現在の値を使う
+        String newTitle = requestBody.getTitle() == null ? schedule.getTitle() : requestBody.getTitle();
+        schedule.setTitle(newTitle);
 
-        LocalDateTime new_datetime = requestBody.getDatetime() == null ? schedule.getDatetime()
+        Boolean newIsAllDay = requestBody.getIsAllDay() == null ? schedule.getIsAllDay() : requestBody.getIsAllDay();
+        schedule.setIsAllDay(newIsAllDay);
+
+        LocalDateTime newDatetime = requestBody.getDatetime() == null ? schedule.getDatetime()
                 : requestBody.getDatetime();
-        schedule.setDatetime(new_datetime);
+        schedule.setDatetime(newDatetime);
 
-        String new_owner = requestBody.getOwner() == null ? schedule.getOwner() : requestBody.getOwner();
-        schedule.setOwner(new_owner);
+        LocalDateTime newEndDateTime = requestBody.getEndDatetime() == null ? schedule.getEndDatetime()
+                : requestBody.getEndDatetime();
+        schedule.setEndDatetime(newEndDateTime);
 
-        String new_description = requestBody.getDescription() == null ? schedule.getDescription()
+        String newOwner = requestBody.getOwner() == null ? schedule.getOwner() : requestBody.getOwner();
+        schedule.setOwner(newOwner);
+
+        String newDescription = requestBody.getDescription() == null ? schedule.getDescription()
                 : requestBody.getDescription();
-        schedule.setDescription(new_description);
+        schedule.setDescription(newDescription);
 
         LocalDateTime currentDateTime = LocalDateTime.now();
         schedule.setUpdateTime(currentDateTime);

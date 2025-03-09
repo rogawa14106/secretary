@@ -1,69 +1,49 @@
 package com.rogawa.secretary.views;
 
-import com.rogawa.secretary.model.Schedule;
 import com.rogawa.secretary.repository.ScheduleRepository;
 
-//import java.util.Optional;
-
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.applayout.AppLayout;
-import com.vaadin.flow.component.applayout.DrawerToggle;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.tabs.Tab;
-import com.vaadin.flow.component.tabs.Tabs;
-import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.Route;
 
 @Route
-// public class MainView extends VerticalLayout {
 @PageTitle("Securetary")
 public class MainView extends AppLayout {
 
     private final ScheduleRepository repo;
-    // final Grid<Schedule> grid;
-
-    // private final ScheduleForm scheduleForm;
-
     private final Header header;
+    private final ListCalender listCalender;
 
-    public MainView(ScheduleRepository repo, ScheduleForm scheduleForm, Header header) {
+    public MainView(ScheduleRepository repo, ScheduleForm scheduleForm, Header header, ListCalender listCalender) {
         this.repo = repo;
         this.header = header;
+        this.listCalender = listCalender;
 
         // ヘッダーを配置
-        addToNavbar(header.createHeader());
+        addToNavbar(false, header.createHeader());
 
-        // スケジュール一覧を配置
-        setContent(createContent());
+        // コンテンツを配置
+        initContent();
+        // getElement().getThemeList().set("dark", true);
+
+        // コンテンツのスクロールをしないようにする(できない#TODO#)
+        // getElement().getStyle().set("height", "100%");
+        // getContent().getStyle().set("height", "100%");
+
+        // データ更新用ハンドラを各コンポーネントに追加
+        header.addUpdateListener(c -> initContent());
+        listCalender.addCancelListener(c -> initContent());
     }
 
-    private Component createContent() {
-        VerticalLayout layout = new VerticalLayout();
-        layout.add("content");
-        // glayout.add(grid);
-        listSchedule();
-        return layout;
+    // コンテンツを作成する
+    private void initContent() {
+        // カレンダーを描画する
+        setContent(listCalender.createVirtualList());
     }
 
-    private void listSchedule() {
-        // grid.setItems(repo.findAll());
-    }
+    // private void listSchedule() {
+    // grid.setItems(repo.findAll());
+    // }
 
 }
 

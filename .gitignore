@@ -1,4 +1,5 @@
 target
-src/main/frontend
+src/main/frontend/generated
+src/main/frontend/index.html
 .classpath
 .project

@@ -3,12 +3,15 @@ package com.rogawa.secretary.views;
 import com.rogawa.secretary.model.Schedule;
 import com.rogawa.secretary.repository.ScheduleRepository;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEvent;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -62,14 +65,26 @@ public class Header extends HorizontalLayout {
     private Dialog createScheduleDialog() {
         Dialog dialog = scheduleForm.createDialog();
         scheduleForm.addChangeListener(c -> {
+            fireEvent(new UpdateEvent(this));
             dialog.close();
-            // TODO リスト更新処理をどう呼ぶか
-            // listSchedule();
         });
         scheduleForm.addCancelListener(c -> {
+            fireEvent(new UpdateEvent(this));
             dialog.close();
         });
         scheduleForm.setSchedule(new Schedule());
         return dialog;
+    }
+
+    // イベントの設定を呼び出し側に譲渡する
+    public class UpdateEvent extends ComponentEvent<Header> {
+        public UpdateEvent(Header source) {
+            super(source, false);
+        }
+    }
+
+    // イベントの設定を呼び出し側に譲渡する
+    public Registration addUpdateListener(ComponentEventListener<UpdateEvent> listener) {
+        return addListener(UpdateEvent.class, listener);
     }
 }
