@@ -56,7 +56,13 @@ postgresql
 - updateTime(予定の更新日\*) timestamptz not null
 
 ```psql
-create datebase secretary;
+psql -U postgres -d postgres
+create role rogawa with login createdb;
+\q
+psql -U rogawa -d postgres
+create database secretary;
+\q
+psql -U rogawa -d secretary;
 create table schedules (
     id serial primary key,
     title text not null,
@@ -71,7 +77,11 @@ create table schedules (
 
 ## リマインド処理
 
-- cloneで1hごとに判定処理
+- cloneで判定処理
+- 21:00
+  明日の予定をリマインド
+- 8:00
+  今日の予定をリマインド
 
 # API Test
 
