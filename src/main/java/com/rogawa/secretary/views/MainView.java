@@ -1,7 +1,9 @@
 package com.rogawa.secretary.views;
 
-import com.rogawa.secretary.repository.ScheduleRepository;
+import java.time.DayOfWeek;
 
+import com.rogawa.secretary.repository.ScheduleRepository;
+import com.rogawa.secretary.views.calender.Calender;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -13,18 +15,25 @@ public class MainView extends AppLayout {
     private final ScheduleRepository repo;
     private final Header header;
     private final ListCalender listCalender;
+    private final Calender calender;
 
-    public MainView(ScheduleRepository repo, ScheduleForm scheduleForm, Header header, ListCalender listCalender) {
+    public MainView(
+            ScheduleRepository repo, ScheduleForm scheduleForm,
+            Header header, ListCalender listCalender, Calender calender) {
+
         this.repo = repo;
         this.header = header;
         this.listCalender = listCalender;
+        this.calender = calender;
+
+        // テーマをダークに設定
+        getElement().getThemeList().set("dark", true);
 
         // ヘッダーを配置
         addToNavbar(false, header.createHeader());
 
         // コンテンツを配置
         initContent();
-        // getElement().getThemeList().set("dark", true);
 
         // コンテンツのスクロールをしないようにする(できない#TODO#)
         // getElement().getStyle().set("height", "100%");
@@ -32,13 +41,16 @@ public class MainView extends AppLayout {
 
         // データ更新用ハンドラを各コンポーネントに追加
         header.addUpdateListener(c -> initContent());
-        listCalender.addCancelListener(c -> initContent());
+        // listCalender.addCancelListener(c -> initContent());
+
     }
 
     // コンテンツを作成する
     private void initContent() {
         // カレンダーを描画する
-        setContent(listCalender.createVirtualList());
+        // setContent(listCalender.createVirtualList());
+        // getContent().getStyle().set("height", "100%");
+        setContent(calender.createCalender("2025-03", DayOfWeek.SUNDAY));
     }
 
     // private void listSchedule() {
