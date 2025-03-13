@@ -5,19 +5,18 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.rogawa.secretary.model.Schedule;
 import com.rogawa.secretary.service.ScheduleServiceImpl;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 
 @SpringComponent
 @UIScope
@@ -90,22 +89,47 @@ public class DateCard extends VerticalLayout {
         this.setPadding(false);
         this.setSpacing(false);
         this.getStyle().set("width", "calc(100% / 7)"); // TODO widthStyleStrを使う
-        // dateCardLayout.getStyle().set("height", "100%");
-        this.getStyle().set("border", "1px solid");
+        this.addClassNames(
+                LumoUtility.Border.LEFT,
+                LumoUtility.Border.TOP,
+                LumoUtility.BoxShadow.XSMALL,
+                LumoUtility.FontSize.XSMALL);
 
         // 日付表示を配置
         this.add(this.date.format(DateTimeFormatter.ofPattern("d")));
 
         // スケジュールのタイトルを描画
         for (Integer i = 0; i < schedules.size(); i++) {
-            String scheduleTitle = schedules.get(i).getTitle();
-            this.add(createTitleChip(scheduleTitle));
+            String title = schedules.get(i).getTitle();
+            String owner = schedules.get(i).getOwner();
+            this.add(createTitleChip(title, owner));
         }
     }
 
     // タイトルを表示するチップを作成する
-    public Span createTitleChip(String title) {
-        Span titleChip = new Span(title);
+    public HorizontalLayout createTitleChip(String title, String owner) {
+        HorizontalLayout titleChip = new HorizontalLayout();
+        titleChip.setHeight("1rem");
+        titleChip.setWidth("100%");
+        titleChip.setPadding(false);
+        titleChip.setAlignItems(FlexComponent.Alignment.START);
+        titleChip.getStyle().set("background-color", service.generateOwnerColorCode(owner));
+        titleChip.getStyle().set("line-height", "1rem");
+        titleChip.getStyle().set("border-radius", "5%");
+        titleChip.addClassNames(
+                LumoUtility.Whitespace.NOWRAP,
+                LumoUtility.TextOverflow.CLIP,
+                LumoUtility.Overflow.HIDDEN);
+
+        // タイトル
+        Span titleSpan = new Span(title);
+        // titleSpan.getElement().getThemeList().add("badge primary");
+        // titleChip.getStyle().set("background-color", "none");
+        titleSpan.getStyle().set("font-size", "0.7rem");
+        titleSpan.addClassNames(LumoUtility.FontWeight.BOLD);
+
+        // タイトルを追加
+        titleChip.add(titleSpan);
         return titleChip;
     }
 

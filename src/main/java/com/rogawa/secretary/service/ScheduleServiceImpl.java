@@ -3,8 +3,10 @@ package com.rogawa.secretary.service;
 import com.rogawa.secretary.model.Schedule;
 import com.rogawa.secretary.repository.ScheduleRepository;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -79,5 +81,28 @@ public class ScheduleServiceImpl implements ScheduleService {
     public void deleteSchedule(Long id) {
         getSchedule(id);
         scheduleRepository.deleteById(id);
+    }
+
+    // scheduleの所有者文字列からカラーコードを作成する
+    public String generateOwnerColorCode(String ownerTxt) {
+        // カラーコードを取得できなかった時用に適当な初期値を設定しておく
+        String ownerColorCode = "#524050";
+
+        try {
+            // 予定の所有者文字列からSHA-1でハッシュ値を生成
+            // Warning: 環境によってSHA-1が使えないときもある
+            MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
+            byte[] sha1Byte = sha1.digest(ownerTxt.getBytes());
+
+            // 生成したハッシュ値の末尾6文字を取得することでカラーコードを定義する
+            // Warning: Java17以降からしか使用出来ない
+            HexFormat hex = HexFormat.of().withLowerCase();
+            String hexString = hex.formatHex(sha1Byte);
+            ownerColorCode = "#" + hexString.substring(0, 6);
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println("### NoSuchAlgorithmException");
+        }
+
+        return ownerColorCode;
     }
 }

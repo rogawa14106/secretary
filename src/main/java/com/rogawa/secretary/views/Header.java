@@ -15,6 +15,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 
 @SpringComponent
@@ -63,7 +64,7 @@ public class Header extends HorizontalLayout {
         navItemFilterButton.setClassName("navbar-item");
 
         // スケジュール作成ボタン
-        Button plusButton = new Button(VaadinIcon.PLUS_CIRCLE.create(), e -> {
+        Button plusButton = new Button(LumoIcon.PLUS.create(), e -> {
             scheduleForm.setSchedule(new Schedule());
             scheduleForm.open();
         });

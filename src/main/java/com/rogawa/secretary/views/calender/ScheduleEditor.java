@@ -2,6 +2,7 @@ package com.rogawa.secretary.views.calender;
 
 import java.util.List;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
@@ -17,6 +18,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.theme.lumo.LumoIcon;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.shared.Registration;
 
@@ -35,8 +37,9 @@ public class ScheduleEditor extends Dialog {
         // this.schedules = schedules;
 
         // 自身のスタイルを設定
-        this.setWidth("100vh");
-        this.setHeight("50vh");
+        this.setWidth("98vw");
+        this.setHeight("40vh");
+        this.setTop("55%");
     }
 
     // 日付をセットする
@@ -68,33 +71,53 @@ public class ScheduleEditor extends Dialog {
         this.add(createScheduleList());
 
         // 新規作成ボタン表示
-        this.add(createAdddingCard());
+        this.add(createAddBtnItem());
     }
 
-    // スケジュールの一覧のレイアウトを作成
+    // スケジュール一覧のレイアウトを作成
     private VerticalLayout createScheduleList() {
         VerticalLayout scheduleList = new VerticalLayout();
+        scheduleList.setPadding(false);
+        scheduleList.setSpacing(false);
         for (Integer i = 0; i < this.schedules.size(); i++) {
+            // スケジュールアイテムを追加
             HorizontalLayout scheduleCard = createScheduleItem(this.schedules.get(i));
             scheduleList.add(scheduleCard);
+
+            // 区切り線を追加
+            // Span separator = new Span(" ");
+            // separator.addClassNames(
+            // LumoUtility.Background.CONTRAST_20,
+            // LumoUtility.BorderRadius.FULL
+            // // LumoUtility.Margin.Horizontal.AUTO,
+            // // LumoUtility.Margin.Bottom.SMALL
+            // );
+            // separator.setWidthFull();
+            // separator.setHeight("2px");
+
+            // HorizontalLayout resizeBarContainer = new HorizontalLayout(separator);
+            // scheduleList.add(resizeBarContainer);
         }
         return scheduleList;
     }
 
-    // 表示するitemのレイアウト
+    // スケジュールの一覧の各アイテムのレイアウト
     private HorizontalLayout createScheduleItem(Schedule schedule) {
         HorizontalLayout scheduleCard = new HorizontalLayout();
-        // スタイルを設定
+
+        // スケジュールアイテムのスタイルを設定
+        scheduleCard.setPadding(true);
         scheduleCard.setWidthFull();
+        scheduleCard.addClassNames(
+                LumoUtility.Border.BOTTOM,
+                LumoUtility.BoxShadow.XSMALL,
+                LumoUtility.FontSize.SMALL);
 
-        // 開始日時を描画
-        // 開始日が今日より早かったら00:00表示 TODO
-        scheduleCard.add(schedule.getDatetime().format(DateTimeFormatter.ofPattern("HH:mm")));
-        // 終了日時を描画
-        // 終了日が今日より遅かったら23:59表示 TODO
-        scheduleCard.add(schedule.getDatetime().format(DateTimeFormatter.ofPattern("HH:mm")));
+        // 要素を追加していく
+        // スケジュールの開始/終了時刻を追加
+        scheduleCard.add(createTimeLayout(schedule));
 
-        // スケジュールの内容を追加
+        // スケジュールのタイトルを追加
         scheduleCard.add(schedule.getTitle());
 
         // スケジュールクリック時の動作を定義
@@ -106,8 +129,53 @@ public class ScheduleEditor extends Dialog {
         return scheduleCard;
     }
 
+    // スケジュールの一覧に表示するアイテムのうち、時刻部分のレイアウト
+    private HorizontalLayout createTimeLayout(Schedule schedule) {
+        HorizontalLayout timeLayout = new HorizontalLayout();
+
+        // 表示する文字列
+        String allDayTxt = "終日";
+        String rangeTxt = "~";
+
+        // 終日予定だったら終日と表示して早期リターン
+        if (schedule.getIsAllDay() == true) {
+            timeLayout.add(allDayTxt);
+            return timeLayout;
+        }
+
+        // 開始/終了日を取得
+        LocalDateTime startDate = schedule.getDatetime();
+        LocalDateTime endDate = schedule.getEndDatetime();
+
+        // 今日中に開始/終了する予定かどうかの真偽値
+        Boolean isStartToday = this.date.isEqual(startDate.toLocalDate());
+        Boolean isEndToday = this.date.isEqual(endDate.toLocalDate());
+
+        // 今日以前に始まり、今日以降に終わる場合は終日と表示して早期リターン
+        if (!isStartToday && !isEndToday) {
+            timeLayout.add(allDayTxt);
+            return timeLayout;
+        }
+
+        String dispTxt = "";
+        // 開始/終了日とこのクラス自身のdateを比較し、今日(this.date)中に開始/終了するかどうか判定
+        // 予定が今日始まる場合は開始時刻を追加
+        if (isStartToday) {
+            dispTxt = dispTxt + startDate.format(DateTimeFormatter.ofPattern("HH:mm"));
+        }
+        // 範囲を表す記号を追加
+        dispTxt = dispTxt + rangeTxt;
+        // 予定が今日終わる場合は終了時刻を追加
+        if (isEndToday) {
+            dispTxt = dispTxt + endDate.format(DateTimeFormatter.ofPattern("HH:mm"));
+        }
+
+        timeLayout.add(dispTxt);
+        return timeLayout;
+    }
+
     // 新規作成ボタン
-    private HorizontalLayout createAdddingCard() {
+    private HorizontalLayout createAddBtnItem() {
         HorizontalLayout addingCard = new HorizontalLayout();
         // スタイルを設定
         addingCard.setWidthFull();
