@@ -37,18 +37,14 @@ public class MainView extends AppLayout {
         String headerTitle = DateTimeFormatter.ofPattern("yyyy年MM月").format(this.calenderMonth);
         addToNavbar(false, this.header.createHeader(headerTitle));
 
-        // コンテンツを配置
-        // setContent(calender.createCalender(this.calenderMonth, FIXED_DAY_OF_WEEK));
-        setContent(this.calender.createCalender(this.calenderMonth, FIXED_DAY_OF_WEEK));
-
-        // コンテンツのスクロールをしないようにする(できない#TODO#)
-        // getElement().getStyle().set("height", "100%");
-        // getContent().getStyle().set("height", "100%");
+        // カレンダーを配置
+        setContent(this.calender);
+        this.calender.initCalender(this.calenderMonth, FIXED_DAY_OF_WEEK);
 
         // データ更新用ハンドラを各コンポーネントに追加
         // ヘッダの新規作成ボタンから予定を作成した時
         this.header.addUpdateListener(c -> {// 作成したカレンダーのIDをredrawContentに渡したい
-            redrawCalender();
+            initCalender();
         });
         // ヘッダの前の月へボタンを押した時
         this.header.addClickPrivBtnListener(c -> {
@@ -68,9 +64,10 @@ public class MainView extends AppLayout {
             // TODO
             changeViewMonth(this.calenderMonth);
         });
+
         // カレンダで予定情報を更新した時
         this.calender.addUpdateListener(c -> {// 作成したカレンダーのIDをredrawContentに渡したい
-            redrawCalender();
+            initCalender();
         });
     }
 
@@ -85,7 +82,7 @@ public class MainView extends AppLayout {
         // ヘッダを更新
         changeHeaderMonth();
         // カレンダーを更新
-        redrawCalender();
+        initCalender();
     }
 
     // ヘッダの月を変更する
@@ -94,10 +91,13 @@ public class MainView extends AppLayout {
         this.header.setViewTitle(headerTitle);
     }
 
-    // カレンダーを再描画する
-    private void redrawCalender() {
-        // this.calender.redrawCalender(this.calenderMonth, FIXED_DAY_OF_WEEK);
-        this.calender.clearCalender();
-        setContent(this.calender.createCalender(this.calenderMonth, FIXED_DAY_OF_WEEK));
+    // カレンダーを初期化する
+    private void initCalender() {
+        this.calender.initCalender(this.calenderMonth, FIXED_DAY_OF_WEEK);
+    }
+
+    // カレンダーのスケジュールを更新する
+    private void updateCalenderSchedule() {
+        this.calender.updateSchedule();
     }
 }

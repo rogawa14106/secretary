@@ -24,58 +24,84 @@ import com.vaadin.flow.spring.annotation.UIScope;
 public class DateCard extends VerticalLayout {
 
     private final ScheduleServiceImpl service;
-    private final LocalDate date;
+    private LocalDate date;
     private String widthStyleStr;
     private List<Schedule> schedules = new ArrayList<>();
 
     private ScheduleEditor scheduleEditor; // こいつはメンバにしなくてもいいかも
 
-    public DateCard(LocalDate date, String widthStyleStr, ScheduleServiceImpl service) {
-        this.date = date;
+    public DateCard(String widthStyleStr, ScheduleServiceImpl service) {
         this.widthStyleStr = widthStyleStr;
         this.service = service;
-        // ※ 初期化時点ではスケジュールは空
-    }
-
-    public VerticalLayout createDateCard() {
-
-        VerticalLayout dateCardLayout = new VerticalLayout();
-        // スタイルを設定
-        dateCardLayout.setPadding(false);
-        dateCardLayout.setSpacing(false);
-        dateCardLayout.getStyle().set("width", "calc(100% / 7)");
-        // dateCardLayout.getStyle().set("height", "100%");
-        dateCardLayout.getStyle().set("border", "1px solid");
-
-        // 日付表示を配置
-        dateCardLayout.add(this.date.format(DateTimeFormatter.ofPattern("d")));
-
-        // スケジュールのタイトルを描画
-        for (Integer i = 0; i < schedules.size(); i++) {
-            String scheduleTitle = schedules.get(i).getTitle();
-            dateCardLayout.add(createTitleChip(scheduleTitle));
-        }
-
         // スケジュールエディターを定義
-        this.scheduleEditor = new ScheduleEditor(this.service, schedules);
-        scheduleEditor.addUpdateListener(e -> {
-            // スケジュール作成/更新/削除/キャンセル時の動作を定義
-            this.scheduleEditor = new ScheduleEditor(this.service, schedules);// FIXME おためし
+        this.scheduleEditor = new ScheduleEditor(this.service); // TODO
+        this.scheduleEditor.addUpdateListener(e -> {
+            // スケジュール作成/更新/削除/キャンセル時のscheduleEditorの動作を定義
             fireEvent(new UpdateEvent(this));
         });
 
         // 日付カードをクリック時の動作を定義
-        dateCardLayout.addClickListener(e -> {
-            this.scheduleEditor.open();
+        this.addClickListener(e -> {
+            this.scheduleEditor.initScheduleEditor(); // スケジュールエディタを再描画
+            this.scheduleEditor.open(); // スケジュールエディタを開く
         });
-
-        return dateCardLayout;
+        // ※ 初期化時点では日付、スケジュールは空
     }
 
-    // この日付にスケジュールを追加する
+    // 日付をセットする
+    public void setDate(LocalDate date) {
+        this.date = date;
+        this.scheduleEditor.setDate(date);
+    }
+
+    // スケジュールを追加する
     public void addSchedule(Schedule schedule) {
         this.schedules.add(schedule);
+        this.scheduleEditor.addSchedule(schedule); // TODO
     };
+
+    // すべてのスケジュールを削除する
+    public void removeAllSchedules() {
+        this.schedules = new ArrayList<>();
+        this.scheduleEditor.removeAllSchedules(); // TODO
+    }
+
+    // レイアウトを作成する
+    public void initDateCard() {
+        placeItems();
+        // // スケジュールエディターを定義
+        // this.scheduleEditor = new ScheduleEditor(this.service, schedules);
+        // scheduleEditor.addUpdateListener(e -> {
+        // // スケジュール作成/更新/削除/キャンセル時の動作を定義
+        // fireEvent(new UpdateEvent(this));
+        // });
+
+        // // 日付カードをクリック時の動作を定義
+        // this.addClickListener(e -> {
+        // this.scheduleEditor.open();
+        // });
+    }
+
+    private void placeItems() {
+        // 小要素をすべて削除
+        this.removeAll();
+
+        // スタイルを設定
+        this.setPadding(false);
+        this.setSpacing(false);
+        this.getStyle().set("width", "calc(100% / 7)"); // TODO widthStyleStrを使う
+        // dateCardLayout.getStyle().set("height", "100%");
+        this.getStyle().set("border", "1px solid");
+
+        // 日付表示を配置
+        this.add(this.date.format(DateTimeFormatter.ofPattern("d")));
+
+        // スケジュールのタイトルを描画
+        for (Integer i = 0; i < schedules.size(); i++) {
+            String scheduleTitle = schedules.get(i).getTitle();
+            this.add(createTitleChip(scheduleTitle));
+        }
+    }
 
     // タイトルを表示するチップを作成する
     public Span createTitleChip(String title) {

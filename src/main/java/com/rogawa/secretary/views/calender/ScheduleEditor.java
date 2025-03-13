@@ -1,6 +1,8 @@
 package com.rogawa.secretary.views.calender;
 
 import java.util.List;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import com.rogawa.secretary.model.Schedule;
@@ -25,28 +27,51 @@ public class ScheduleEditor extends Dialog {
     private ScheduleServiceImpl service;
     private final ScheduleForm scheduleForm;
     private List<Schedule> schedules;
+    private LocalDate date;
 
-    public ScheduleEditor(ScheduleServiceImpl service, List<Schedule> schedules) {
+    public ScheduleEditor(ScheduleServiceImpl service/* , List<Schedule> schedules */) {
         this.service = service;
         this.scheduleForm = createScheduleForm();
-        this.schedules = schedules;
-        createScheduleEditor();
-    }
+        // this.schedules = schedules;
 
-    public void createScheduleEditor() {
-        // ダイアログのレイアウトを作る
-        // スタイルを設定
+        // 自身のスタイルを設定
         this.setWidth("100vh");
         this.setHeight("50vh");
+    }
 
-        // スケジュールをリスト表示
+    // 日付をセットする
+    public void setDate(LocalDate date) {
+        this.date = date;
+    };
+
+    // スケジュールを追加する
+    public void addSchedule(Schedule schedule) {
+        this.schedules.add(schedule);
+    };
+
+    // すべてのスケジュールを削除する
+    public void removeAllSchedules() {
+        this.schedules = new ArrayList<>();
+    }
+
+    public void initScheduleEditor() {
+        // ダイアログのレイアウトを作る
+        placeItems();
+    }
+
+    // ダイアログのレイアウトを作る
+    public void placeItems() {
+        // 子要素をすべて削除
+        this.removeAll();
+
+        // スケジュール一覧を配置
         this.add(createScheduleList());
 
         // 新規作成ボタン表示
         this.add(createAdddingCard());
     }
 
-    // スケジュールの一覧のレイアウト
+    // スケジュールの一覧のレイアウトを作成
     private VerticalLayout createScheduleList() {
         VerticalLayout scheduleList = new VerticalLayout();
         for (Integer i = 0; i < this.schedules.size(); i++) {
@@ -62,7 +87,14 @@ public class ScheduleEditor extends Dialog {
         // スタイルを設定
         scheduleCard.setWidthFull();
 
-        // 要素を追加
+        // 開始日時を描画
+        // 開始日が今日より早かったら00:00表示 TODO
+        scheduleCard.add(schedule.getDatetime().format(DateTimeFormatter.ofPattern("HH:mm")));
+        // 終了日時を描画
+        // 終了日が今日より遅かったら23:59表示 TODO
+        scheduleCard.add(schedule.getDatetime().format(DateTimeFormatter.ofPattern("HH:mm")));
+
+        // スケジュールの内容を追加
         scheduleCard.add(schedule.getTitle());
 
         // スケジュールクリック時の動作を定義
@@ -83,6 +115,7 @@ public class ScheduleEditor extends Dialog {
 
         // 要素を追加
         Span icon = new Span(LumoIcon.PLUS.create());
+        icon.getStyle().set("margin", "0 auto");
         addingCard.add(icon);
 
         // スケジュールクリック時の動作を定義
@@ -100,12 +133,12 @@ public class ScheduleEditor extends Dialog {
         // スケジュール新規作成/更新/削除時の動作
         scheduleForm.addChangeListener(c -> {
             fireEvent(new UpdateEvent(this));
-            // TODO ここにスケジュール一覧を再描画する処理を入れる
+            initScheduleEditor(); // ScheduleEditorの要素を再描画
             scheduleForm.close();
         });
         scheduleForm.addCancelListener(c -> {
             fireEvent(new UpdateEvent(this));
-            // TODO ここにスケジュール一覧を再描画する処理を入れる
+            initScheduleEditor(); // ScheduleEditorの要素を描画
             scheduleForm.close();
         });
         return scheduleForm;

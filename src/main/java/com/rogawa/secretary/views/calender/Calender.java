@@ -40,63 +40,50 @@ public class Calender extends VerticalLayout {
     public Calender(ScheduleRepository repo, ScheduleServiceImpl service) {
         this.repo = repo;
         this.service = service;
-    }
 
-    public VerticalLayout createCalender(LocalDate targetYearMonth, DayOfWeek fixedDayOfWeek) {
-        System.out.println("### createCalender ########################");
-        System.out.println(targetYearMonth);
-        // 描画する月のカレンダーの最初の日を確定
-        this.fixedDayOfWeek = fixedDayOfWeek;
-        this.firstDayOfCalender = searchFirstDayOfCalender(targetYearMonth, fixedDayOfWeek);
-
-        // カレンダーに描画する範囲の日付を取得;
-        this.drawingDates = getDrawingDates();
-
-        // 日付ぶんのDataCardを作成して配列に入れる
+        // 日付ぶんのDataCardを作成してリストに追加する
         for (Integer i = 0; i < MAX_DRAWING_DATES; i++) {
-            DateCard dateCard = new DateCard(drawingDates[i], "calc(100% / " + WEEK_DAY_CNT + ")", this.service);
-            // スケジュール作成/更新/削除/キャンセルときの動作
+            DateCard dateCard = new DateCard("calc(100% / " + WEEK_DAY_CNT + ")", this.service);
+            // スケジュール作成/更新/削除/キャンセル時にdateCardで行う動作
             dateCard.addUpdateListener(e -> {
                 fireEvent(new UpdateEvent(this));
             });
             this.dateCards.add(dateCard);
         }
+    }
 
-        // カレンダーに描画する範囲のスケジュールを取得;
-        this.drawingSchedules = getDrawingSchedules();
+    public void initCalender(LocalDate targetYearMonth, DayOfWeek fixedDayOfWeek) {
+        System.out.println("### createCalender(" + targetYearMonth + ") ########################");
+        // 描画する月のカレンダーの最初の日を確定
+        this.fixedDayOfWeek = fixedDayOfWeek;
+        this.firstDayOfCalender = searchFirstDayOfCalender(targetYearMonth);
 
-        // 日付オブジェクトにスケジュールを入れる
-        System.out.println("### drawing schedules ######################");
-        System.out.println(this.drawingSchedules.size());
-        for (Integer i = 0; i < this.drawingSchedules.size(); i++) {
-            // スケジュールの開始日から終了日までに存在する日付の日付オブジェクトに予定を追加する
-            // カレンダーの最初の日とスケジュールの開始日を比較して、入れるべき日付オブジェクトのインデックスを作成する
-            Schedule schedule = drawingSchedules.get(i);
-            // スケジュールの開始日と終了日を取得
-            LocalDate scheduleStartDate = schedule.getDatetime().toLocalDate();
-            LocalDate scheduleEndDate = schedule.getEndDatetime().toLocalDate();
-            // カレンダーの最初の日から何日目に予定を入れればよいか計算する
-            Integer startIdx = scheduleStartDate.getDayOfYear() - firstDayOfCalender.getDayOfYear();
-            // スケジュールが何日あるか計算する
-            Integer scheduleRange = scheduleEndDate.getDayOfYear() - scheduleStartDate.getDayOfYear() + 1;
-            for (Integer j = 0; j < scheduleRange; j++) {
-                Integer targetDayIdx = startIdx + j;
-                // カレンダーからはみ出る場合はスケジュールを入れない
-                if (targetDayIdx < 0 || targetDayIdx >= MAX_DRAWING_DATES) {
-                    continue;
-                }
-                // 各日付(DateCard)にスケジュールを入れる
-                dateCards.get(startIdx + j).addSchedule(schedule);
-            }
-            System.out.println(this.drawingSchedules.get(i));
-        }
+        // カレンダーに描画する範囲の日付を取得;
+        this.drawingDates = getDrawingDates();
+
+        // DateCardに日付を入れる
+        setDateCardsDate();
+
+        // カレンダーに描画するスケジュールを取得;
+        this.drawingSchedules = retrieveDrawingSchedules();
+
+        // DateCardにスケジュールを入れる
+        setDateCardsSchedule();
+
+        // 小要素を配置
+        placeDateCards();
+    }
+
+    // カレンダーにすべてのDateCardを配置する
+    private void placeDateCards() {
+        // 子要素をすべて削除
+        this.removeAll();
 
         // カレンダーのレイアウトを作成
-        VerticalLayout calenderLayout = new VerticalLayout();
-        calenderLayout.setPadding(false);
-        calenderLayout.setSpacing(false);
-        calenderLayout.getStyle().set("width", "100%");
-        calenderLayout.getStyle().set("height", "100%");
+        this.setPadding(false);
+        this.setSpacing(false);
+        this.getStyle().set("width", "100%");
+        this.getStyle().set("height", "100%");
 
         // 各日付オブジェクトを配置する
         for (Integer i = 0; i < MAX_DRAWING_DATES / WEEK_DAY_CNT; i++) {
@@ -112,33 +99,73 @@ public class Calender extends VerticalLayout {
             for (Integer j = 0; j < WEEK_DAY_CNT; j++) {
                 // 日付オブジェクトを週のレイアウトに7個ずつ配置
                 DateCard dateCard = this.dateCards.get(i * WEEK_DAY_CNT + j);
-                weekLayout.add(dateCard.createDateCard());
+                dateCard.initDateCard();
+                weekLayout.add(dateCard);
             }
-            calenderLayout.add(weekLayout);
+            this.add(weekLayout);
         }
-        // スケジュールを入れる
-        return calenderLayout;
     }
 
-    public void clearCalender() {
-        Arrays.fill(this.drawingDates, null);
-        this.drawingSchedules.clear();
-        this.dateCards.clear();
+    // すべてのDataCardに日付をセットする
+    private void setDateCardsDate() {
+        // DateCardに日付をセットする
+        for (Integer i = 0; i < MAX_DRAWING_DATES; i++) {
+            this.dateCards.get(i).setDate(this.drawingDates[i]);
+        }
+    }
+
+    // すべてのDataCardにスケジュールをセットする
+    private void setDateCardsSchedule() {
+        System.out.println("### drawing schedules ######################");
+        System.out.println(this.drawingSchedules.size());
+
+        // すべてのdateCardsからスケジュールを削除する
+        for (Integer i = 0; i < MAX_DRAWING_DATES; i++) {
+            dateCards.get(i).removeAllSchedules();
+        }
+
+        // 描画対象のスケジュールをループして、dateCardsに日付を追加していく
+        for (Integer i = 0; i < this.drawingSchedules.size(); i++) {
+            System.out.println(this.drawingSchedules.get(i)); // 描画対象のスケジュール出力
+            // スケジュールの開始日から終了日までに存在する日付の日付オブジェクトに予定を追加する
+            // カレンダーの最初の日とスケジュールの開始日を比較して、入れるべき日付オブジェクトのインデックスを作成する
+            Schedule schedule = drawingSchedules.get(i);
+            // スケジュールの開始日と終了日を取得
+            LocalDate scheduleStartDate = schedule.getDatetime().toLocalDate();
+            LocalDate scheduleEndDate = schedule.getEndDatetime().toLocalDate();
+            // カレンダーの最初の日から何日目に予定を入れればよいか計算する
+            Integer startIdx = scheduleStartDate.getDayOfYear() - firstDayOfCalender.getDayOfYear();
+            // スケジュールが何日あるか計算する
+            Integer scheduleRange = scheduleEndDate.getDayOfYear() - scheduleStartDate.getDayOfYear() + 1;
+            // DateCardにスケジュールを入れる
+            for (Integer j = 0; j < scheduleRange; j++) {
+                Integer targetDayIdx = startIdx + j; // カレンダーの最初の日から何日進んだかを表すインデックス
+
+                // カレンダー内に収まっているスケジュールのみをDateCardに入れる
+                if (targetDayIdx > -1 && targetDayIdx < MAX_DRAWING_DATES) {
+                    dateCards.get(startIdx + j).addSchedule(schedule);
+                }
+                // if (targetDayIdx < 0 || targetDayIdx >= MAX_DRAWING_DATES) {
+                // continue;
+                // }
+            }
+        }
     }
 
     // カレンダーに描画する対象のスケジュールを取得する
-    private List<Schedule> getDrawingSchedules() {
+    private List<Schedule> retrieveDrawingSchedules() {
         // カレンダーの開始日/終了日をLocalDateTimeに整形する
         LocalDateTime start_day = this.drawingDates[0].atStartOfDay();
         LocalDateTime end_day = this.drawingDates[MAX_DRAWING_DATES - 1].atStartOfDay();
 
-        System.out.println("### getDrawindSchedules #################");
-        System.out.println("start_day: " + start_day);
-        System.out.println("end_day: " + end_day);
-        // 開始日〜終了日までの間に入っている予定を取得
+        System.out.println("### retrieveDrawingSchedules #################");
+        System.out.println("calender start day: " + start_day);
+        System.out.println("calender end day: " + end_day);
+
+        // 開始日〜終了日までの間に入っている予定をDBから取得
         List<Schedule> drawingSchedules = repo.findAllByDateRange(start_day, end_day);
 
-        System.out.println("drawingSchedules size: " + drawingSchedules.size());
+        System.out.println("drawing schedules size: " + drawingSchedules.size());
         return drawingSchedules;
     }
 
@@ -156,27 +183,24 @@ public class Calender extends VerticalLayout {
     }
 
     // 月ごとのカレンダー上で最初の日になる日付を探す
-    private LocalDate searchFirstDayOfCalender(LocalDate targetYearMonth, DayOfWeek fixedDayOfWeek) {
+    private LocalDate searchFirstDayOfCalender(LocalDate targetYearMonth) {
         // その月の最初の日を取得
         LocalDate firstDayOfMonth = targetYearMonth.with(TemporalAdjusters.firstDayOfMonth());
 
-        // LocalDate firstDayOfMonth = LocalDate.of(targetYearMonth.getYear(),
-        // targetYearMonth.getMonth(), 1);
-        LocalDate firstDayOfCalender = firstDayOfMonth;
-
         // 月のはじめの日(x月1日)の曜日を確認
         // カレンダーの週頭固定曜日でない場合は、その前の週の集頭固定曜日を探す
-
-        System.out.println("### 1 ##################");
-        if (firstDayOfMonth.getDayOfWeek() != fixedDayOfWeek) {
-            System.out.println("### 2 ##################");
-            System.out.println(fixedDayOfWeek);
-            // firstDayOfCalender =
-            // firstDayOfMonth.minusDays(WEEK_DAY_CNT).with(fixedDayOfWeek);
-            firstDayOfCalender = firstDayOfMonth.with(TemporalAdjusters.previous(fixedDayOfWeek));
+        LocalDate firstDayOfCalender = firstDayOfMonth;
+        if (firstDayOfMonth.getDayOfWeek() != this.fixedDayOfWeek) {
+            firstDayOfCalender = firstDayOfMonth.with(TemporalAdjusters.previous(this.fixedDayOfWeek));
         }
 
         return firstDayOfCalender;
+    }
+
+    // TODO
+    // initCalenderよりも再描画範囲を狭めたい
+    public void updateSchedule() {
+        // スケジュールを再取得してカレンダーを再描画
     }
 
     // イベントの設定を呼び出し側に譲渡する

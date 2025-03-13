@@ -39,11 +39,13 @@ public class Header extends HorizontalLayout {
             System.out.println("### MonthSelector Clicked ###");
             fireEvent(new SelectMonthEvent(this));
         });
+        // 前の月へボタン
         Span privButton = new Span(VaadinIcon.CARET_LEFT.create());
         privButton.addClickListener(e -> {
             System.out.println("### privButton Clicked ###");
             fireEvent(new ClickPrivBtnEvent(this));
         });
+        // 次の月へボタン
         Span nextButton = new Span(VaadinIcon.CARET_RIGHT.create());
         nextButton.addClickListener(e -> {
             System.out.println("### nextButton Clicked ###");
@@ -52,8 +54,8 @@ public class Header extends HorizontalLayout {
 
         HorizontalLayout navItemSpacer = new HorizontalLayout();
         navItemSpacer.setAlignItems(FlexComponent.Alignment.CENTER);
-        navItemSpacer.add(privButton, viewTitle, nextButton);
         navItemSpacer.setClassName("navbar-item");
+        navItemSpacer.add(privButton, viewTitle, nextButton);
 
         // フィルタボタン
         Button filterButton = new Button(VaadinIcon.FILTER.create());
