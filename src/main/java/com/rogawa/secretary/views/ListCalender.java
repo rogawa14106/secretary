@@ -39,7 +39,7 @@ import com.vaadin.flow.shared.Registration;
 @UIScope
 public class ListCalender extends VerticalLayout {
 
-    private ScheduleForm scheduleForm;
+    // private ScheduleForm scheduleForm;
     private ScheduleServiceImpl service;
     private final ScheduleRepository repo;
 
@@ -228,7 +228,7 @@ public class ListCalender extends VerticalLayout {
 
         // クリック時の動作定義
         layout.addClickListener(e -> {
-            openScheduleDialog(schedule);
+            openScheduleForm(schedule);
         });
 
         return layout;
@@ -263,26 +263,25 @@ public class ListCalender extends VerticalLayout {
     }
 
     // スケジュール編集/削除用のダイアログを開く
-    private void openScheduleDialog(Schedule schedule) {
+    private void openScheduleForm(Schedule schedule) {
         // フォームインスタンス作成
         ScheduleForm scheduleForm = new ScheduleForm(service);
         // ダイアログ作成
-        Dialog dialog = scheduleForm.createDialog();
         // イベント設定
         scheduleForm.addChangeListener(c -> {
             fireEvent(new UpdateEvent(this));
-            dialog.close();
+            scheduleForm.close();
         });
 
         scheduleForm.addCancelListener(c -> {
             fireEvent(new UpdateEvent(this));
-            dialog.close();
+            scheduleForm.close();
         });
 
         // フォームの値を設定
         scheduleForm.setSchedule(schedule);
         // ダイアログを開く
-        dialog.open();
+        scheduleForm.open();
     }
 
     private String zeroSuppress(String numStr) {

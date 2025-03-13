@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.rogawa.secretary.model.Schedule;
 import com.rogawa.secretary.service.ScheduleServiceImpl;
 import com.vaadin.flow.component.ComponentEvent;
@@ -33,8 +35,9 @@ import com.vaadin.flow.spring.annotation.UIScope;
 @SpringComponent
 @UIScope
 // スケジュールを新規作成、編集、削除するためのフォーム用クラス
-public class ScheduleForm extends Div {
+public class ScheduleForm extends Dialog {
 
+    // @Autowired
     private final ScheduleServiceImpl service;
 
     // フォームのフィールド定義
@@ -119,11 +122,13 @@ public class ScheduleForm extends Div {
         // 初期値として、deleteボタンが見えないように設定する
         // フォームを開いたときに値がセットされているときのみ、deleteボタンが見えるように設計する(編集時など)
         deleteButton.setVisible(false);
+
+        // UIを作成する
+        createUI();
     }
 
     // 入力フォームのダイアログを作成する
-    public Dialog createDialog() {
-        Dialog dialog = new Dialog();
+    private void createUI() {
         FormLayout formLayout = new FormLayout();
 
         // タイトル欄の設定
@@ -188,13 +193,11 @@ public class ScheduleForm extends Div {
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
 
         // フォームをダイアログに追加
-        dialog.add(formLayout);
+        this.add(formLayout);
         // ボタンをダイアログのフッターに配置
-        dialog.getFooter().add(cancelButton);
-        dialog.getFooter().add(deleteButton);
-        dialog.getFooter().add(saveButton);
-
-        return dialog;
+        this.getFooter().add(cancelButton);
+        this.getFooter().add(deleteButton);
+        this.getFooter().add(saveButton);
     }
 
     // 終日予定かどうかによってフォームを変えるメソッド
@@ -233,7 +236,7 @@ public class ScheduleForm extends Div {
         System.out.println("#### Try to save schedules");
         binder.getBean().logWrite();
         try {
-            if (binder.validate().isOk()) {
+            if (binder.validate().isOk()) { // この分岐、いらなそう FIXME
                 service.createSchedule(binder.getBean());
                 setSchedule(null);
                 fireEvent(new ChangeEvent(this));
@@ -244,6 +247,9 @@ public class ScheduleForm extends Div {
         } catch (Exception e) {
             Notification notification = Notification.show("「*」がついている項目は必須だよ", 2000, Position.TOP_END);
             notification.addThemeVariants(NotificationVariant.LUMO_WARNING);
+
+            System.out.println("#### An error occured when saving schedule.");
+            System.out.println(e);
         }
     }
 
@@ -280,6 +286,7 @@ public class ScheduleForm extends Div {
     }
 
     // 外部からモデルを設定可能にする。
+    // フォームを開きたいときはnullではなく必ずScheduleインスタンスを渡す
     public void setSchedule(Schedule schedule) {
         binder.setBean(schedule);
         if (Objects.nonNull(schedule)) {

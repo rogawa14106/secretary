@@ -2,13 +2,14 @@ package com.rogawa.secretary.views;
 
 import com.rogawa.secretary.model.Schedule;
 import com.rogawa.secretary.repository.ScheduleRepository;
+import com.rogawa.secretary.service.ScheduleServiceImpl;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.shared.Registration;
@@ -23,17 +24,51 @@ public class Header extends HorizontalLayout {
     private H2 viewTitle;
     private final ScheduleForm scheduleForm;
     private final ScheduleRepository repo;
+    private final ScheduleServiceImpl service;
 
-    public Header(ScheduleRepository repo, ScheduleForm scheduleForm) {
+    public Header(ScheduleRepository repo, ScheduleServiceImpl service) {
         this.repo = repo;
-        this.scheduleForm = scheduleForm;
+        this.service = service;
+        this.scheduleForm = createScheduleForm();
     }
 
-    public Component createHeader() {
-        viewTitle = new H2("Home");
-        Div navItemSpacer = new Div(viewTitle);
+    public Component createHeader(String title) {
+        // ヘッダの月表示部分
+        viewTitle = new H2(title);
+        viewTitle.addClickListener(e -> {
+            System.out.println("### MonthSelector Clicked ###");
+            fireEvent(new SelectMonthEvent(this));
+        });
+        Span privButton = new Span(VaadinIcon.CARET_LEFT.create());
+        privButton.addClickListener(e -> {
+            System.out.println("### privButton Clicked ###");
+            fireEvent(new ClickPrivBtnEvent(this));
+        });
+        Span nextButton = new Span(VaadinIcon.CARET_RIGHT.create());
+        nextButton.addClickListener(e -> {
+            System.out.println("### nextButton Clicked ###");
+            fireEvent(new ClickNextBtnEvent(this));
+        });
+
+        HorizontalLayout navItemSpacer = new HorizontalLayout();
+        navItemSpacer.setAlignItems(FlexComponent.Alignment.CENTER);
+        navItemSpacer.add(privButton, viewTitle, nextButton);
         navItemSpacer.setClassName("navbar-item");
 
+        // フィルタボタン
+        Button filterButton = new Button(VaadinIcon.FILTER.create());
+        Div navItemFilterButton = new Div(filterButton);
+        navItemFilterButton.setClassName("navbar-item");
+
+        // スケジュール作成ボタン
+        Button plusButton = new Button(VaadinIcon.PLUS_CIRCLE.create(), e -> {
+            scheduleForm.setSchedule(new Schedule());
+            scheduleForm.open();
+        });
+        Div navItemPlusButton = new Div(plusButton);
+        navItemPlusButton.setClassName("navbar-item");
+
+        // 各要素をヘッダに配置
         HorizontalLayout layout = new HorizontalLayout();
         layout.setId("header");
         layout.getThemeList().set("dark", true);
@@ -43,48 +78,73 @@ public class Header extends HorizontalLayout {
         layout.setPadding(true);
         layout.add(navItemSpacer);
 
-        // a button of filtering schedules.
-        Button filterButton = new Button(VaadinIcon.FILTER.create());
-        Div navItemFilterButton = new Div(filterButton);
-        navItemFilterButton.setClassName("navbar-item");
         layout.add(navItemFilterButton);
 
-        // a button of creating schedule.
-        Dialog scheduleDialog = createScheduleDialog();
-        Button plusButton = new Button(VaadinIcon.PLUS_CIRCLE.create(), e -> {
-            scheduleForm.setSchedule(new Schedule());
-            scheduleDialog.open();
-        });
-        Div navItemPlusButton = new Div(plusButton);
-        navItemPlusButton.setClassName("navbar-item");
         layout.add(navItemPlusButton);
 
         return layout;
     }
 
-    private Dialog createScheduleDialog() {
-        Dialog dialog = scheduleForm.createDialog();
+    private ScheduleForm createScheduleForm() {
+        ScheduleForm scheduleForm = new ScheduleForm(this.service);
         scheduleForm.addChangeListener(c -> {
             fireEvent(new UpdateEvent(this));
-            dialog.close();
+            scheduleForm.close();
         });
         scheduleForm.addCancelListener(c -> {
             fireEvent(new UpdateEvent(this));
-            dialog.close();
+            scheduleForm.close();
         });
         scheduleForm.setSchedule(new Schedule());
-        return dialog;
+        return scheduleForm;
     }
 
-    // イベントの設定を呼び出し側に譲渡する
+    // ヘッダのタイトルを変更する
+    public void setViewTitle(String title) {
+        viewTitle.setText(title);
+    }
+
+    // カレンダー更新処理の設定を呼び出し側に譲渡する
     public class UpdateEvent extends ComponentEvent<Header> {
         public UpdateEvent(Header source) {
             super(source, false);
         }
     }
 
-    // イベントの設定を呼び出し側に譲渡する
     public Registration addUpdateListener(ComponentEventListener<UpdateEvent> listener) {
         return addListener(UpdateEvent.class, listener);
+    }
+
+    // 次の月ボタンを押した時のイベントを呼び出し側に譲渡する
+    public class ClickPrivBtnEvent extends ComponentEvent<Header> {
+        public ClickPrivBtnEvent(Header source) {
+            super(source, false);
+        }
+    }
+
+    public Registration addClickPrivBtnListener(ComponentEventListener<ClickPrivBtnEvent> listener) {
+        return addListener(ClickPrivBtnEvent.class, listener);
+    }
+
+    // 次の月ボタンを押した時のイベントを呼び出し側に譲渡する
+    public class ClickNextBtnEvent extends ComponentEvent<Header> {
+        public ClickNextBtnEvent(Header source) {
+            super(source, false);
+        }
+    }
+
+    public Registration addClickNextBtnListener(ComponentEventListener<ClickNextBtnEvent> listener) {
+        return addListener(ClickNextBtnEvent.class, listener);
+    }
+
+    // 次の月ボタンを押した時のイベントを呼び出し側に譲渡する
+    public class SelectMonthEvent extends ComponentEvent<Header> {
+        public SelectMonthEvent(Header source) {
+            super(source, false);
+        }
+    }
+
+    public Registration addSelectMonthListener(ComponentEventListener<SelectMonthEvent> listener) {
+        return addListener(SelectMonthEvent.class, listener);
     }
 }
