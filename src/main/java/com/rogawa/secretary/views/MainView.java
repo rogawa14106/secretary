@@ -34,7 +34,7 @@ public class MainView extends AppLayout {
         getElement().getThemeList().set("dark", true);
 
         // ヘッダーを配置 TODO ヘッダのタイトルの設定を設定する方法が、ヘッダ初期化時とsetViewTitleで違う手段なのが良くない
-        String headerTitle = DateTimeFormatter.ofPattern("yyyy年MM月").format(this.calenderMonth);
+        String headerTitle = DateTimeFormatter.ofPattern("yyyy年M月").format(this.calenderMonth);
         addToNavbar(false, this.header.createHeader(headerTitle));
 
         // カレンダーを配置
@@ -87,7 +87,7 @@ public class MainView extends AppLayout {
 
     // ヘッダの月を変更する
     private void changeHeaderMonth() {
-        String headerTitle = DateTimeFormatter.ofPattern("yyyy年MM月").format(this.calenderMonth);
+        String headerTitle = DateTimeFormatter.ofPattern("yyyy年M月").format(this.calenderMonth);
         this.header.setViewTitle(headerTitle);
     }
 

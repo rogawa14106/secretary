@@ -69,7 +69,7 @@ public class ScheduleEditor extends Dialog {
 
         // ヘッダに日付を入れる
         // this.setHeaderTitle(this.date.format(DateTimeFormatter.ofPattern("yyyy/M/d")));
-        this.setHeaderTitle(this.date.format(DateTimeFormatter.ofPattern("d")) + "日の予定");
+        this.setHeaderTitle(this.date.format(DateTimeFormatter.ofPattern("M月d日")) + "の予定");
 
         // スケジュール一覧を配置
         this.add(createScheduleList());
