@@ -68,17 +68,6 @@ public class DateCard extends VerticalLayout {
     // レイアウトを作成する
     public void initDateCard() {
         placeItems();
-        // // スケジュールエディターを定義
-        // this.scheduleEditor = new ScheduleEditor(this.service, schedules);
-        // scheduleEditor.addUpdateListener(e -> {
-        // // スケジュール作成/更新/削除/キャンセル時の動作を定義
-        // fireEvent(new UpdateEvent(this));
-        // });
-
-        // // 日付カードをクリック時の動作を定義
-        // this.addClickListener(e -> {
-        // this.scheduleEditor.open();
-        // });
     }
 
     private void placeItems() {
@@ -115,7 +104,9 @@ public class DateCard extends VerticalLayout {
         titleChip.setAlignItems(FlexComponent.Alignment.START);
         titleChip.getStyle().set("background-color", service.generateOwnerColorCode(owner));
         titleChip.getStyle().set("line-height", "1rem");
-        titleChip.getStyle().set("border-radius", "5%");
+        titleChip.getStyle().set("border-radius", "2px");
+        titleChip.getStyle().set("padding-left", "0.1rem");
+        titleChip.getStyle().set("margin-bottom", "0.1rem");
         titleChip.addClassNames(
                 LumoUtility.Whitespace.NOWRAP,
                 LumoUtility.TextOverflow.CLIP,
@@ -123,8 +114,6 @@ public class DateCard extends VerticalLayout {
 
         // タイトル
         Span titleSpan = new Span(title);
-        // titleSpan.getElement().getThemeList().add("badge primary");
-        // titleChip.getStyle().set("background-color", "none");
         titleSpan.getStyle().set("font-size", "0.7rem");
         titleSpan.addClassNames(LumoUtility.FontWeight.BOLD);
 
