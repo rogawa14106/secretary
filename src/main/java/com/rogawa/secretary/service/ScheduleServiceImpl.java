@@ -105,4 +105,12 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         return ownerColorCode;
     }
+
+    // デフォルト値を入れたスケジュールを作成する
+    public Schedule createDefaultSchedule(LocalDateTime baseDateTime) {
+        Schedule defaultSchedule = new Schedule();
+        defaultSchedule.setDatetime(baseDateTime);
+        defaultSchedule.setEndDatetime(baseDateTime.plusHours(1));
+        return defaultSchedule;
+    }
 }

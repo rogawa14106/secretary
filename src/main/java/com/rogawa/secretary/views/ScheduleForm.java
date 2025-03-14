@@ -271,7 +271,9 @@ public class ScheduleForm extends Dialog {
             title.focus();
 
             // IDが入っていなかったら、新規作成用のフォームにする
-            deleteButton.setVisible(schedule.getId() != null);
+            if (schedule.getId() == null) {
+                deleteButton.setVisible(false);
+            }
         }
     }
 

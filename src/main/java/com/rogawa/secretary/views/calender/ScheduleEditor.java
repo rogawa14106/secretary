@@ -3,6 +3,7 @@ package com.rogawa.secretary.views.calender;
 import java.util.List;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
@@ -184,6 +185,9 @@ public class ScheduleEditor extends Dialog {
         addBtnItem.addClickListener(e -> {
             // 新規作成フォームを表示する
             openScheduleForm(new Schedule());
+            // TODO このスケジュールの日付&&今の時間が入った状態でスケジュールが開かれるようにする
+            // LocalDateTime baseDateTime = this.date.atTime(LocalTime.now());
+            // openScheduleForm(this.service.createDefaultSchedule(baseDateTime));
         });
 
         return addBtnItem;
@@ -208,6 +212,12 @@ public class ScheduleEditor extends Dialog {
 
     // スケジュールフォームに値をセットして開く
     private void openScheduleForm(Schedule schedule) {
+        // 新規作成のときはデフォルトの時間をセットする
+        if (schedule.getId() == null) {
+            LocalDateTime baseDateTime = this.date.atTime(LocalTime.now());
+            schedule.setDatetime(baseDateTime);
+            schedule.setEndDatetime(baseDateTime.plusHours(1));
+        }
         scheduleForm.setSchedule(schedule);
         scheduleForm.open();
     }
