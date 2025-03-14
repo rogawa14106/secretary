@@ -32,9 +32,10 @@ public class MainView extends AppLayout {
         // テーマをダークに設定
         getElement().getThemeList().set("dark", true);
 
-        // ヘッダーを配置 TODO ヘッダのタイトルの設定を設定する方法が、ヘッダ初期化時とsetViewTitleで違う手段なのが良くない
-        String headerTitle = DateTimeFormatter.ofPattern("yyyy年M月").format(this.calenderMonth);
-        addToNavbar(true, this.header.createHeader(headerTitle));
+        // ヘッダーを配置
+        addToNavbar(true, this.header.createHeader());
+        // ヘッダのタイトルにテキストをセット
+        setHeaderDate();
 
         // カレンダーを配置
         setContent(this.calender);
@@ -61,7 +62,10 @@ public class MainView extends AppLayout {
             // 選ばれた月をcalenderMonthにセット
             // ヘッダとカレンダーを再描画する
             // TODO
-            changeViewMonth(this.calenderMonth);
+            LocalDate selectedMonth = c.getValue();
+            if (selectedMonth != null) {
+                changeViewMonth(selectedMonth);
+            }
         });
 
         // カレンダで予定情報を更新した時
@@ -70,33 +74,25 @@ public class MainView extends AppLayout {
         });
     }
 
-    // コンテンツの情報を更新する
-    private void redrawContent() {
-        // calender.redrawCalender();
-    }
-
     // このアプリケーション全体で描画する月を変更する
     private void changeViewMonth(LocalDate newMonth) {
         this.calenderMonth = newMonth;
-        // ヘッダを更新
-        changeHeaderMonth();
+        // ヘッダの月表示を更新
+        setHeaderDate();
         // カレンダーを更新
         initCalender();
     }
 
     // ヘッダの月を変更する
-    private void changeHeaderMonth() {
-        String headerTitle = DateTimeFormatter.ofPattern("yyyy年M月").format(this.calenderMonth);
-        this.header.setViewTitle(headerTitle);
+    private void setHeaderDate() {
+        // String headerTitle =
+        // DateTimeFormatter.ofPattern("yyyy年M月").format(this.calenderMonth);
+        // this.header.setViewTitle(headerTitle);
+        this.header.setCalenderMonth(this.calenderMonth);
     }
 
     // カレンダーを初期化する
     private void initCalender() {
         this.calender.initCalender(this.calenderMonth, FIXED_DAY_OF_WEEK);
-    }
-
-    // カレンダーのスケジュールを更新する
-    private void updateCalenderSchedule() {
-        this.calender.updateSchedule();
     }
 }

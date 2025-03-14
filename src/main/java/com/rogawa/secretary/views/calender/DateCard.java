@@ -91,11 +91,10 @@ public class DateCard extends VerticalLayout {
             this.addClassName(LumoUtility.Background.PRIMARY_10);
         } else if (this.date.getMonth() == calenderMonth.getMonth()) {
             // 描画する日付の月がカレンダーの月と同じ場合、背景色を変える
+            this.removeClassNames(LumoUtility.Background.PRIMARY_10);
             this.addClassName(LumoUtility.Background.CONTRAST_5);
         } else {
-            this.removeClassNames(
-                    LumoUtility.Background.PRIMARY_10,
-                    LumoUtility.Background.CONTRAST_5);
+            this.removeClassNames(LumoUtility.Background.CONTRAST_5);
         }
 
         // 日付表示を配置
