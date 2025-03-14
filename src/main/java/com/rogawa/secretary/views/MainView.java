@@ -16,17 +16,15 @@ public class MainView extends AppLayout {
 
     // private final ScheduleRepository repo;
     private final Header header;
-    // private final ListCalender listCalender;
     private final Calender calender;
 
     private LocalDate calenderMonth;
     private static final DayOfWeek FIXED_DAY_OF_WEEK = DayOfWeek.SUNDAY;
 
-    public MainView(/* ScheduleRepository repo, */ Header header, /* ListCalender listCalender, */ Calender calender) {
+    public MainView(/* ScheduleRepository repo, */ Header header, Calender calender) {
 
         // this.repo = repo;
         this.header = header;
-        // this.listCalender = listCalender;
         this.calender = calender;
         this.calenderMonth = LocalDate.now();
 
