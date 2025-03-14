@@ -86,9 +86,11 @@ public class Header extends HorizontalLayout {
                 LumoUtility.Padding.SMALL);
         layout.add(navItemSpacer);
 
-        layout.add(navItemFilterButton);
+        // layout.add(navItemFilterButton); //TODO 予定をフィルタするボタン(優先度低)
 
-        layout.add(navItemPlusButton);
+        // layout.add(navItemPlusButton); // カレンダー側で作成できるので不要かも
+
+        // TODO 今日へ戻るボタンを作りたい
 
         return layout;
     }
