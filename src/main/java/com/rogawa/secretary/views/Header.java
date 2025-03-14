@@ -33,14 +33,16 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 @UIScope
 public class Header extends HorizontalLayout {
 
-    private H3 viewTitle;
-    // private final ScheduleForm scheduleForm;
     private final ScheduleRepository repo;
     private final ScheduleServiceImpl service;
+    // private final ScheduleForm scheduleForm;
 
-    private final ListBox<LocalDate> monthSelector;
-    private final Popover monthSelectorView;
     private LocalDate calenderMonth;
+
+    private H3 viewTitle;
+    private final ListBox<LocalDate> monthSelector;
+    private final Popover monthSelectorView; // monthSelectorを表示するコンポーネント
+    private Boolean isEnableMonthSelectorEvent; // monthSelectorのチェンジイベントの有効無効を切り替える
 
     public Header(ScheduleRepository repo, ScheduleServiceImpl service) {
         this.repo = repo;
@@ -146,13 +148,21 @@ public class Header extends HorizontalLayout {
     // 月選択ボックスを作成する
     private ListBox<LocalDate> createMonthSelector() {
         ListBox<LocalDate> monthSelector = new ListBox<>();
+
         // Itemの表示フォーマットを定義する
         monthSelector.setItemLabelGenerator(date -> {
-            String month = date.format(DateTimeFormatter.ofPattern("yyyy/M"));
+            String month = date.format(DateTimeFormatter.ofPattern("yyyy年 M月"));
             return month;
         });
         // 月を選択したときのイベントを定義する
         monthSelector.addValueChangeListener(e -> {
+            // Warning
+            // イベント無効フラグが立っていたら、上位のイベントを発火しない
+            // これをしないとItem更新時に無限ループしてstack overflowが発生する
+            // これがあるので、monthselectorは別モジュールとして作ったほうがいい
+            if (!isEnableMonthSelectorEvent) {
+                return;
+            }
             this.monthSelectorView.close(); // ポップオーバーを閉じる
             fireEvent(new SelectMonthEvent(this, e.getValue())); // TODO
         });
@@ -161,19 +171,27 @@ public class Header extends HorizontalLayout {
 
     // 月選択ボックスを初期化する
     private void initMonthSelector() {
-        // お試し。
-        // TODO カレンダー月の前後一年を表示する
+        // 表示する月の設定
         Integer displayMonthRange = 24;
         Integer monthOffset = displayMonthRange / 2;
-        LocalDate startMonth = LocalDate.now().minusMonths(monthOffset);
+        LocalDate startMonth = this.calenderMonth.minusMonths(monthOffset);
 
-        // 描画するアイテムの配列
+        // 描画するアイテムの配列を作成
         LocalDate[] monthItems = new LocalDate[displayMonthRange];
 
         for (Integer i = 0; i < displayMonthRange; i++) {
             monthItems[i] = startMonth.plusMonths(i);
         }
+
+        // ValueChangeイベント発火時に何もしないようにする
+        this.isEnableMonthSelectorEvent = false;
+
+        // 値をセットする
         this.monthSelector.setItems(monthItems);
+        this.monthSelector.setValue(this.calenderMonth);
+
+        // イベントを有効にする
+        this.isEnableMonthSelectorEvent = true;
     }
 
     // カレンダー更新処理の設定を呼び出し側に譲渡する

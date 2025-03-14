@@ -58,14 +58,7 @@ public class MainView extends AppLayout {
         });
         // ヘッダで月選択をした時
         this.header.addSelectMonthListener(c -> {
-            // 月セレクタを表示
-            // 選ばれた月をcalenderMonthにセット
-            // ヘッダとカレンダーを再描画する
-            // TODO
-            LocalDate selectedMonth = c.getValue();
-            if (selectedMonth != null) {
-                changeViewMonth(selectedMonth);
-            }
+            changeViewMonth(c.getValue());
         });
 
         // カレンダで予定情報を更新した時
