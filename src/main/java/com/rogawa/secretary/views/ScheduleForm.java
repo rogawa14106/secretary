@@ -171,7 +171,8 @@ public class ScheduleForm extends Dialog {
         owner.setLabel("予定の所有者*");
 
         // フォームに入力欄を配置
-        formLayout.add(title, isAllDay, datetime, date, endDatetime, endDate, description, owner);
+        formLayout.add(title, owner, isAllDay, datetime, date, endDatetime, endDate, description);
+
         // フォームのレイアウトを設定
         formLayout.setResponsiveSteps(
                 // Use one column by default
@@ -179,7 +180,8 @@ public class ScheduleForm extends Dialog {
                 // Use two columns, if layout's width exceeds 500px
                 new ResponsiveStep("500px", 2));
         // Stretch the title field over 2 columns
-        formLayout.setColspan(title, 2);
+        // formLayout.setColspan(title, 2);
+        formLayout.setColspan(isAllDay, 2);
         formLayout.setColspan(description, 2);
 
         // キャンセルボタン
@@ -261,11 +263,27 @@ public class ScheduleForm extends Dialog {
         System.out.println("#### Schedule deleted");
     }
 
+    // 外部からモデルを設定可能にする。
+    // フォームを開きたいときはnullではなく必ずScheduleインスタンスを渡す
+    public void setSchedule(Schedule schedule) {
+        binder.setBean(schedule);
+        if (Objects.nonNull(schedule)) {
+            title.focus();
+
+            // IDが入っていなかったら、新規作成用のフォームにする
+            deleteButton.setVisible(schedule.getId() != null);
+        }
+    }
+
     // イベントの設定を呼び出し側に譲渡する
     public class ChangeEvent extends ComponentEvent<ScheduleForm> {
         public ChangeEvent(ScheduleForm source) {
             super(source, false);
         }
+    }
+
+    public Registration addChangeListener(ComponentEventListener<ChangeEvent> listener) {
+        return addListener(ChangeEvent.class, listener);
     }
 
     // イベントの設定を呼び出し側に譲渡する
@@ -275,23 +293,8 @@ public class ScheduleForm extends Dialog {
         }
     }
 
-    // イベントの設定を呼び出し側に譲渡する
-    public Registration addChangeListener(ComponentEventListener<ChangeEvent> listener) {
-        return addListener(ChangeEvent.class, listener);
-    }
-
-    // イベントの設定を呼び出し側に譲渡する
     public Registration addCancelListener(ComponentEventListener<CancelEvent> listener) {
         return addListener(CancelEvent.class, listener);
     }
 
-    // 外部からモデルを設定可能にする。
-    // フォームを開きたいときはnullではなく必ずScheduleインスタンスを渡す
-    public void setSchedule(Schedule schedule) {
-        binder.setBean(schedule);
-        if (Objects.nonNull(schedule)) {
-            title.focus();
-            deleteButton.setVisible(schedule.getId() != null);
-        }
-    }
 }
