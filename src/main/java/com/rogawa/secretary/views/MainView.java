@@ -19,7 +19,8 @@ public class MainView extends AppLayout {
     private final Calender calender;
 
     private LocalDate calenderMonth;
-    private static final DayOfWeek FIXED_DAY_OF_WEEK = DayOfWeek.SUNDAY;
+    private static final DayOfWeek FIXED_DAY_OF_WEEK = DayOfWeek.SUNDAY; // カレンダーの週頭にする曜日
+    // private static final DayOfWeek FIXED_DAY_OF_WEEK = DayOfWeek.MONDAY;
 
     public MainView(/* ScheduleRepository repo, */ Header header, Calender calender) {
 

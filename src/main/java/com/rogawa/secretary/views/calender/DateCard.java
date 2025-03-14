@@ -1,5 +1,6 @@
 package com.rogawa.secretary.views.calender;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class DateCard extends VerticalLayout {
         this.widthStyleStr = widthStyleStr;
         this.service = service;
         // スケジュールエディターを定義
-        this.scheduleEditor = new ScheduleEditor(this.service); // TODO
+        this.scheduleEditor = new ScheduleEditor(this.service);
         this.scheduleEditor.addUpdateListener(e -> {
             // スケジュール作成/更新/削除/キャンセル時のscheduleEditorの動作を定義
             fireEvent(new UpdateEvent(this));
@@ -56,13 +57,13 @@ public class DateCard extends VerticalLayout {
     // スケジュールを追加する
     public void addSchedule(Schedule schedule) {
         this.schedules.add(schedule);
-        this.scheduleEditor.addSchedule(schedule); // TODO
+        this.scheduleEditor.addSchedule(schedule);
     };
 
     // すべてのスケジュールを削除する
     public void removeAllSchedules() {
         this.schedules = new ArrayList<>();
-        this.scheduleEditor.removeAllSchedules(); // TODO
+        this.scheduleEditor.removeAllSchedules();
     }
 
     // レイアウトを作成する
@@ -77,15 +78,19 @@ public class DateCard extends VerticalLayout {
         // スタイルを設定
         this.setPadding(false);
         this.setSpacing(false);
-        this.getStyle().set("width", "calc(100% / 7)"); // TODO widthStyleStrを使う
+        this.getStyle().set("width", this.widthStyleStr);
         this.addClassNames(
                 LumoUtility.Border.LEFT,
                 LumoUtility.Border.TOP,
                 LumoUtility.BoxShadow.XSMALL,
                 LumoUtility.FontSize.XSMALL);
+        if (this.date.equals(LocalDate.now())) {
+            // 日付が今日の場合は背景色を変える
+            this.addClassName(LumoUtility.Background.PRIMARY_10);
+        }
 
         // 日付表示を配置
-        this.add(this.date.format(DateTimeFormatter.ofPattern("d")));
+        this.add(createDateChip());
 
         // スケジュールのタイトルを描画
         for (Integer i = 0; i < schedules.size(); i++) {
@@ -93,6 +98,32 @@ public class DateCard extends VerticalLayout {
             String owner = schedules.get(i).getOwner();
             this.add(createTitleChip(title, owner));
         }
+    }
+
+    public HorizontalLayout createDateChip() {
+        HorizontalLayout dateChip = new HorizontalLayout();
+        dateChip.setHeight("1rem");
+        dateChip.getStyle().set("line-height", "1rem");
+        dateChip.getStyle().set("padding-left", "0.1rem");
+
+        // 日付レイアウトを作成
+        String dateTxt = this.date.format(DateTimeFormatter.ofPattern("d"));
+        Span dateSpan = new Span(dateTxt);
+
+        // 休日は色を付ける
+        // TODO 祝日も色つけたい。
+        // => google calender APIを非同期で実行するか、休日DBを作るか、休日定義するクラス作って静的に判定するか
+        if (this.date.getDayOfWeek() == DayOfWeek.SATURDAY) {
+            // 土曜は青くする
+            dateSpan.addClassName(LumoUtility.TextColor.PRIMARY);
+        } else if (this.date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            // 日曜は赤くする
+            dateSpan.addClassName(LumoUtility.TextColor.ERROR);
+        }
+
+        // 配置
+        dateChip.add(dateSpan);
+        return dateChip;
     }
 
     // タイトルを表示するチップを作成する

@@ -149,7 +149,7 @@ public class ScheduleEditor extends Dialog {
         }
 
         String dispTxt = ""; // 表示するテキスト
-        String timeFormatPattern = "H:m"; // 時間のフォーマット文字列
+        String timeFormatPattern = "H:mm"; // 時間のフォーマット文字列
         // 開始/終了日とこのクラス自身のdateを比較し、今日(this.date)中に開始/終了するかどうか判定
         // 予定が今日始まる場合は開始時刻を追加
         if (isStartToday) {
