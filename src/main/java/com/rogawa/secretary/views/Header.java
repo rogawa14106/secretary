@@ -9,6 +9,7 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -16,13 +17,14 @@ import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.theme.lumo.LumoIcon;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 
 @SpringComponent
 @UIScope
 public class Header extends HorizontalLayout {
 
-    private H2 viewTitle;
+    private H3 viewTitle;
     private final ScheduleForm scheduleForm;
     private final ScheduleRepository repo;
     private final ScheduleServiceImpl service;
@@ -35,7 +37,7 @@ public class Header extends HorizontalLayout {
 
     public Component createHeader(String title) {
         // ヘッダの月表示部分
-        viewTitle = new H2(title);
+        viewTitle = new H3(title);
         viewTitle.addClickListener(e -> {
             System.out.println("### MonthSelector Clicked ###");
             fireEvent(new SelectMonthEvent(this));
@@ -78,7 +80,10 @@ public class Header extends HorizontalLayout {
         layout.setWidthFull();
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
         layout.setFlexGrow(1, navItemSpacer);
-        layout.setPadding(true);
+        layout.setPadding(false);
+        layout.addClassNames(
+                LumoUtility.Border.TOP,
+                LumoUtility.Padding.SMALL);
         layout.add(navItemSpacer);
 
         layout.add(navItemFilterButton);
@@ -118,7 +123,7 @@ public class Header extends HorizontalLayout {
         return addListener(UpdateEvent.class, listener);
     }
 
-    // 次の月ボタンを押した時のイベントを呼び出し側に譲渡する
+    // 前の月ボタンを押した時のイベントを呼び出し側に譲渡する
     public class ClickPrivBtnEvent extends ComponentEvent<Header> {
         public ClickPrivBtnEvent(Header source) {
             super(source, false);
@@ -140,7 +145,7 @@ public class Header extends HorizontalLayout {
         return addListener(ClickNextBtnEvent.class, listener);
     }
 
-    // 次の月ボタンを押した時のイベントを呼び出し側に譲渡する
+    // 月選択した時のイベントを呼び出し側に譲渡する
     public class SelectMonthEvent extends ComponentEvent<Header> {
         public SelectMonthEvent(Header source) {
             super(source, false);

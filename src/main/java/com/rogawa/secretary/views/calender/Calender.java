@@ -19,6 +19,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 
 @SpringComponent
 @UIScope
@@ -35,6 +36,7 @@ public class Calender extends VerticalLayout {
     private LocalDate[] drawingDates; // 描画する日付の配列
     private List<Schedule> drawingSchedules = new ArrayList<Schedule>(); // 描画するスケジュールのリスト
     private List<DateCard> dateCards = new ArrayList<DateCard>(); // カレンダーの各日付のレイアウトのリスト
+    private LocalDate targetYearMonth; // カレンダーの月
     private DayOfWeek fixedDayOfWeek; // 週頭固定曜日
 
     public Calender(ScheduleRepository repo, ScheduleServiceImpl service) {
@@ -55,6 +57,7 @@ public class Calender extends VerticalLayout {
     public void initCalender(LocalDate targetYearMonth, DayOfWeek fixedDayOfWeek) {
         System.out.println("### createCalender(" + targetYearMonth + ") ########################");
         // 描画する月のカレンダーの最初の日を確定
+        this.targetYearMonth = targetYearMonth;
         this.fixedDayOfWeek = fixedDayOfWeek;
         this.firstDayOfCalender = searchFirstDayOfCalender(targetYearMonth);
 
@@ -99,7 +102,7 @@ public class Calender extends VerticalLayout {
             for (Integer j = 0; j < WEEK_DAY_CNT; j++) {
                 // 日付オブジェクトを週のレイアウトに7個ずつ配置
                 DateCard dateCard = this.dateCards.get(i * WEEK_DAY_CNT + j);
-                dateCard.initDateCard();
+                dateCard.initDateCard(targetYearMonth);
                 weekLayout.add(dateCard);
             }
             this.add(weekLayout);
@@ -110,7 +113,8 @@ public class Calender extends VerticalLayout {
     private void setDateCardsDate() {
         // DateCardに日付をセットする
         for (Integer i = 0; i < MAX_DRAWING_DATES; i++) {
-            this.dateCards.get(i).setDate(this.drawingDates[i]);
+            LocalDate date = this.drawingDates[i];
+            this.dateCards.get(i).setDate(date);
         }
     }
 
@@ -124,7 +128,7 @@ public class Calender extends VerticalLayout {
             dateCards.get(i).removeAllSchedules();
         }
 
-        // 描画対象のスケジュールをループして、dateCardsに日付を追加していく
+        // 描画対象のスケジュールをループして、スケジュールの日付に当てはまる場合はdateCardsに追加していく
         for (Integer i = 0; i < this.drawingSchedules.size(); i++) {
             System.out.println(this.drawingSchedules.get(i)); // 描画対象のスケジュール出力
             // スケジュールの開始日から終了日までに存在する日付の日付オブジェクトに予定を追加する

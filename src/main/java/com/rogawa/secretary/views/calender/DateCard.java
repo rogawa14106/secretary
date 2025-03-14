@@ -45,6 +45,16 @@ public class DateCard extends VerticalLayout {
             this.scheduleEditor.initScheduleEditor(); // スケジュールエディタを再描画
             this.scheduleEditor.open(); // スケジュールエディタを開く
         });
+
+        // 不変のスタイルを設定
+        this.setPadding(false);
+        this.setSpacing(false);
+        this.getStyle().set("width", this.widthStyleStr);
+        this.addClassNames(
+                LumoUtility.Border.LEFT,
+                LumoUtility.Border.TOP,
+                LumoUtility.BoxShadow.XSMALL,
+                LumoUtility.FontSize.XSMALL);
         // ※ 初期化時点では日付、スケジュールは空
     }
 
@@ -67,26 +77,25 @@ public class DateCard extends VerticalLayout {
     }
 
     // レイアウトを作成する
-    public void initDateCard() {
-        placeItems();
+    public void initDateCard(LocalDate calenderMonth) {
+        placeItems(calenderMonth);
     }
 
-    private void placeItems() {
+    private void placeItems(LocalDate calenderMonth) {
         // 小要素をすべて削除
         this.removeAll();
 
-        // スタイルを設定
-        this.setPadding(false);
-        this.setSpacing(false);
-        this.getStyle().set("width", this.widthStyleStr);
-        this.addClassNames(
-                LumoUtility.Border.LEFT,
-                LumoUtility.Border.TOP,
-                LumoUtility.BoxShadow.XSMALL,
-                LumoUtility.FontSize.XSMALL);
+        // 日付の属性によって背景色を変える
         if (this.date.equals(LocalDate.now())) {
             // 日付が今日の場合は背景色を変える
             this.addClassName(LumoUtility.Background.PRIMARY_10);
+        } else if (this.date.getMonth() == calenderMonth.getMonth()) {
+            // 描画する日付の月がカレンダーの月と同じ場合、背景色を変える
+            this.addClassName(LumoUtility.Background.CONTRAST_5);
+        } else {
+            this.removeClassNames(
+                    LumoUtility.Background.PRIMARY_10,
+                    LumoUtility.Background.CONTRAST_5);
         }
 
         // 日付表示を配置

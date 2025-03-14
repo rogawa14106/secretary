@@ -34,7 +34,7 @@ public class MainView extends AppLayout {
 
         // ヘッダーを配置 TODO ヘッダのタイトルの設定を設定する方法が、ヘッダ初期化時とsetViewTitleで違う手段なのが良くない
         String headerTitle = DateTimeFormatter.ofPattern("yyyy年M月").format(this.calenderMonth);
-        addToNavbar(false, this.header.createHeader(headerTitle));
+        addToNavbar(true, this.header.createHeader(headerTitle));
 
         // カレンダーを配置
         setContent(this.calender);
