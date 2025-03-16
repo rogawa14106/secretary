@@ -2,40 +2,28 @@ package com.rogawa.secretary.views;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 
-import com.rogawa.secretary.model.Schedule;
-import com.rogawa.secretary.repository.ScheduleRepository;
-import com.rogawa.secretary.service.ScheduleServiceImpl;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.EventData;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.popover.Popover;
-import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 
 @SpringComponent
 @UIScope
 public class Header extends HorizontalLayout {
-
-    private final ScheduleRepository repo;
-    private final ScheduleServiceImpl service;
-    // private final ScheduleForm scheduleForm;
 
     private LocalDate calenderMonth;
 
@@ -44,10 +32,7 @@ public class Header extends HorizontalLayout {
     private final Popover monthSelectorView; // monthSelectorを表示するコンポーネント
     private Boolean isEnableMonthSelectorEvent; // monthSelectorのチェンジイベントの有効無効を切り替える
 
-    public Header(ScheduleRepository repo, ScheduleServiceImpl service) {
-        this.repo = repo;
-        this.service = service;
-        // this.scheduleForm = createScheduleForm();
+    public Header() {
         viewTitle = new H3();
         this.monthSelectorView = new Popover();
         this.monthSelector = createMonthSelector();
@@ -68,10 +53,7 @@ public class Header extends HorizontalLayout {
         // 月表示を押すと月選択ボックスがポップオーバーするようにする
         monthSelectorView.setTarget(this.viewTitle);
         monthSelectorView.add(this.monthSelector);
-        // viewTitle.addClickListener(e -> {
-        // System.out.println("### MonthSelector Clicked ###");
-        // // fireEvent(new SelectMonthEvent(this));
-        // });
+
         // 前の月へボタン
         Span privButton = new Span(VaadinIcon.CARET_LEFT.create());
         privButton.addClickListener(e -> {
@@ -119,31 +101,12 @@ public class Header extends HorizontalLayout {
 
         // layout.add(navItemFilterButton); //TODO 予定をフィルタするボタン(優先度低)
 
-        // layout.add(navItemPlusButton); // カレンダー側で作成できるので不要かも
+        // layout.add(navItemPlusButton); // カレンダー側で作成できるので不要とする
 
         // TODO 今日へ戻るボタンを作りたい
 
         return layout;
     }
-
-    // private ScheduleForm createScheduleForm() {
-    // ScheduleForm scheduleForm = new ScheduleForm(this.service);
-    // scheduleForm.addChangeListener(c -> {
-    // fireEvent(new UpdateEvent(this));
-    // scheduleForm.close();
-    // });
-    // scheduleForm.addCancelListener(c -> {
-    // fireEvent(new UpdateEvent(this));
-    // scheduleForm.close();
-    // });
-    // scheduleForm.setSchedule(new Schedule());
-    // return scheduleForm;
-    // }
-
-    // ヘッダのタイトルを変更する
-    // public void setViewTitle(String title) {
-    // viewTitle.setText(title);
-    // }
 
     // 月選択ボックスを作成する
     private ListBox<LocalDate> createMonthSelector() {
@@ -159,12 +122,12 @@ public class Header extends HorizontalLayout {
             // Warning
             // イベント無効フラグが立っていたら、上位のイベントを発火しない
             // これをしないとItem更新時に無限ループしてstack overflowが発生する
-            // これがあるので、monthselectorは別モジュールとして作ったほうがいい
+            // このフラグがあるので、monthselectorは別モジュールとして作ったほうがいいかも
             if (!isEnableMonthSelectorEvent) {
                 return;
             }
             this.monthSelectorView.close(); // ポップオーバーを閉じる
-            fireEvent(new SelectMonthEvent(this, e.getValue())); // TODO
+            fireEvent(new SelectMonthEvent(this, e.getValue()));
         });
         return monthSelector;
     }

@@ -2,9 +2,7 @@ package com.rogawa.secretary.views;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
-import com.rogawa.secretary.repository.ScheduleRepository;
 import com.rogawa.secretary.views.calender.Calender;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.router.PageTitle;
@@ -14,20 +12,16 @@ import com.vaadin.flow.router.Route;
 @PageTitle("Securetary")
 public class MainView extends AppLayout {
 
-    // private final ScheduleRepository repo;
     private final Header header;
     private final Calender calender;
-    private final ScheduleForm scheduleForm;
 
     private LocalDate calenderMonth;
     private static final DayOfWeek FIXED_DAY_OF_WEEK = DayOfWeek.SUNDAY; // カレンダーの週頭にする曜日
 
-    public MainView(Header header, Calender calender, ScheduleForm scheduleForm) {
+    public MainView(Header header, Calender calender) {
 
-        // this.repo = repo;
         this.header = header;
         this.calender = calender;
-        this.scheduleForm = scheduleForm;
 
         // カレンダーの月を今日に設定
         this.calenderMonth = LocalDate.now();

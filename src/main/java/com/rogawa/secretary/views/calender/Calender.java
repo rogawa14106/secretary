@@ -3,10 +3,8 @@ package com.rogawa.secretary.views.calender;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.rogawa.secretary.model.Schedule;
@@ -19,7 +17,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 
 @SpringComponent
 @UIScope
@@ -74,7 +71,7 @@ public class Calender extends VerticalLayout {
     }
 
     public void initCalender(LocalDate targetYearMonth, DayOfWeek fixedDayOfWeek) {
-        System.out.println("### createCalender(" + targetYearMonth + ") ########################");
+        System.out.println("### initCalender(" + targetYearMonth + ") ########################");
         // 描画する月のカレンダーの最初の日を確定
         this.targetYearMonth = targetYearMonth;
         this.fixedDayOfWeek = fixedDayOfWeek;
@@ -139,9 +136,6 @@ public class Calender extends VerticalLayout {
 
     // すべてのDataCardにスケジュールをセットする
     private void setDateCardsSchedule() {
-        System.out.println("### drawing schedules ######################");
-        System.out.println(this.drawingSchedules.size());
-
         // すべてのdateCardsからスケジュールを削除する
         for (Integer i = 0; i < MAX_DRAWING_DATES; i++) {
             dateCards.get(i).removeAllSchedules();
@@ -149,7 +143,6 @@ public class Calender extends VerticalLayout {
 
         // 描画対象のスケジュールをループして、スケジュールの日付に当てはまる場合はdateCardsに追加していく
         for (Integer i = 0; i < this.drawingSchedules.size(); i++) {
-            System.out.println(this.drawingSchedules.get(i)); // 描画対象のスケジュール出力
             // スケジュールの開始日から終了日までに存在する日付の日付オブジェクトに予定を追加する
             // カレンダーの最初の日とスケジュールの開始日を比較して、入れるべき日付オブジェクトのインデックスを作成する
             Schedule schedule = drawingSchedules.get(i);
@@ -168,9 +161,6 @@ public class Calender extends VerticalLayout {
                 if (targetDayIdx > -1 && targetDayIdx < MAX_DRAWING_DATES) {
                     dateCards.get(startIdx + j).addSchedule(schedule);
                 }
-                // if (targetDayIdx < 0 || targetDayIdx >= MAX_DRAWING_DATES) {
-                // continue;
-                // }
             }
         }
     }
@@ -181,14 +171,9 @@ public class Calender extends VerticalLayout {
         LocalDateTime start_day = this.drawingDates[0].atStartOfDay();
         LocalDateTime end_day = this.drawingDates[MAX_DRAWING_DATES - 1].atStartOfDay();
 
-        System.out.println("### retrieveDrawingSchedules #################");
-        System.out.println("calender start day: " + start_day);
-        System.out.println("calender end day: " + end_day);
-
         // 開始日〜終了日までの間に入っている予定をDBから取得
         List<Schedule> drawingSchedules = repo.findAllByDateRange(start_day, end_day);
 
-        System.out.println("drawing schedules size: " + drawingSchedules.size());
         return drawingSchedules;
     }
 

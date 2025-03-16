@@ -5,8 +5,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.rogawa.secretary.model.Schedule;
 import com.rogawa.secretary.service.ScheduleServiceImpl;
 import com.vaadin.flow.component.ComponentEvent;
@@ -19,14 +17,12 @@ import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -37,7 +33,6 @@ import com.vaadin.flow.spring.annotation.UIScope;
 // スケジュールを新規作成、編集、削除するためのフォーム用クラス
 public class ScheduleForm extends Dialog {
 
-    // @Autowired
     private final ScheduleServiceImpl service;
 
     // フォームのフィールド定義
@@ -275,7 +270,7 @@ public class ScheduleForm extends Dialog {
         }
     }
 
-    // イベントの設定を呼び出し側に譲渡する
+    // スケジュールデータ更新時のイベントの設定を呼び出し側に譲渡する
     public class ChangeEvent extends ComponentEvent<ScheduleForm> {
         public ChangeEvent(ScheduleForm source) {
             super(source, false);
@@ -286,7 +281,7 @@ public class ScheduleForm extends Dialog {
         return addListener(ChangeEvent.class, listener);
     }
 
-    // イベントの設定を呼び出し側に譲渡する
+    // キャンセルイベントの設定を呼び出し側に譲渡する
     public class CancelEvent extends ComponentEvent<ScheduleForm> {
         public CancelEvent(ScheduleForm source) {
             super(source, false);

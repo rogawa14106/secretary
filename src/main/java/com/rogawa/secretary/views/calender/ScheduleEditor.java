@@ -5,10 +5,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 
 import com.rogawa.secretary.model.Schedule;
-import com.rogawa.secretary.service.ScheduleServiceImpl;
 import com.rogawa.secretary.views.ScheduleForm;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -27,13 +25,11 @@ import com.vaadin.flow.shared.Registration;
 @UIScope
 public class ScheduleEditor extends Dialog {
 
-    private ScheduleServiceImpl service;
     private final ScheduleForm scheduleForm;
     private List<Schedule> schedules;
     private LocalDate date;
 
-    public ScheduleEditor(ScheduleServiceImpl service, ScheduleForm scheduleForm) {
-        this.service = service;
+    public ScheduleEditor(ScheduleForm scheduleForm) {
         this.scheduleForm = scheduleForm;
         // スケジュール新規作成/更新/削除時の動作
         scheduleForm.addChangeListener(c -> {
@@ -66,7 +62,6 @@ public class ScheduleEditor extends Dialog {
         this.removeAll();
 
         // ヘッダに日付を入れる
-        // this.setHeaderTitle(this.date.format(DateTimeFormatter.ofPattern("yyyy/M/d")));
         this.setHeaderTitle(this.date.format(DateTimeFormatter.ofPattern("M月d日")) + "の予定");
 
         // スケジュール一覧を配置
@@ -185,22 +180,6 @@ public class ScheduleEditor extends Dialog {
         });
 
         return addBtnItem;
-    }
-
-    // スケジュールフォームを作成する
-    private ScheduleForm createScheduleForm() {
-        // ScheduleForm scheduleForm = new ScheduleForm(service);
-        // スケジュール新規作成/更新/削除時の動作
-        scheduleForm.addChangeListener(c -> {
-            fireEvent(new UpdateEvent(this));
-            scheduleForm.close();
-        });
-        scheduleForm.addCancelListener(c -> {
-            fireEvent(new UpdateEvent(this));
-            // initScheduleEditor(this.date, this.schedules); // ScheduleEditorの要素を描画
-            scheduleForm.close();
-        });
-        return scheduleForm;
     }
 
     // スケジュールフォームに値をセットして開く

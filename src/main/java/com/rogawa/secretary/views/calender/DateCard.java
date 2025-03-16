@@ -34,13 +34,7 @@ public class DateCard extends VerticalLayout {
         this.widthStyleStr = widthStyleStr;
         this.service = service;
         // スケジュールエディターを定義
-        this.scheduleEditor = scheduleEditor;// new ScheduleEditor(this.service);
-        // this.scheduleEditor.addUpdateListener(e -> {
-        // // スケジュール作成/更新/削除/キャンセル時のscheduleEditorの動作を定義
-        // fireEvent(new UpdateEvent(this));
-        // // this.scheduleEditor.initScheduleEditor(this.date, this.schedules); //
-        // // ScheduleEditorの要素を再描画
-        // });
+        this.scheduleEditor = scheduleEditor;
 
         // 日付カードをクリック時の動作を定義
         this.addClickListener(e -> {
@@ -63,7 +57,6 @@ public class DateCard extends VerticalLayout {
     // 日付をセットする
     public void setDate(LocalDate date) {
         this.date = date;
-        // this.scheduleEditor.setDate(date); TODO
     }
 
     // 日付を取得する
@@ -74,7 +67,6 @@ public class DateCard extends VerticalLayout {
     // スケジュールを追加する
     public void addSchedule(Schedule schedule) {
         this.schedules.add(schedule);
-        // this.scheduleEditor.addSchedule(schedule); TODO
     };
 
     // スケジュールのリストを取得する
@@ -85,7 +77,6 @@ public class DateCard extends VerticalLayout {
     // すべてのスケジュールを削除する
     public void removeAllSchedules() {
         this.schedules = new ArrayList<>();
-        // this.scheduleEditor.removeAllSchedules(); TODO
     }
 
     // レイアウトを作成する

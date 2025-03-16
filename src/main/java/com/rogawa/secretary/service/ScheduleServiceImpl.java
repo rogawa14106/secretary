@@ -108,6 +108,9 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     // デフォルト値を入れたスケジュールを作成する
     public Schedule createDefaultSchedule(LocalDateTime baseDateTime) {
+        // デフォルト値
+        // datetime: ベースになる日付
+        // endDatetime: ベースになる日付+1h
         Schedule defaultSchedule = new Schedule();
         defaultSchedule.setDatetime(baseDateTime);
         defaultSchedule.setEndDatetime(baseDateTime.plusHours(1));
