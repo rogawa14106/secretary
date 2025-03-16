@@ -204,13 +204,15 @@ public class ScheduleForm extends Dialog {
         if (isAllDay) {
             // 終日予定がTrueの場合は 日付入力フォームを表示
             if (datetime.getValue() != null) {
-                date.setValue(datetime.getValue().toLocalDate());
+                LocalDate tmp = datetime.getValue().toLocalDate();
                 datetime.clear();
+                date.setValue(tmp);
             }
 
             if (endDatetime.getValue() != null) {
-                endDate.setValue(endDatetime.getValue().toLocalDate());
+                LocalDate tmp = endDatetime.getValue().toLocalDate();
                 endDatetime.clear();
+                endDate.setValue(tmp);
             }
 
             datetime.setVisible(false);
@@ -221,13 +223,16 @@ public class ScheduleForm extends Dialog {
         } else {
             // 終日予定でない場合は日時入力フォームを表示
             if (date.getValue() != null) {
-                datetime.setValue(date.getValue().atTime(12, 0));
+                LocalDateTime tmp = date.getValue().atTime(12, 0);
                 date.clear();
+                datetime.setValue(tmp);
             }
             if (endDate.getValue() != null) {
-                endDatetime.setValue(endDate.getValue().atTime(13, 0));
+                LocalDateTime tmp = endDate.getValue().atTime(13, 0);
                 endDate.clear();
+                endDatetime.setValue(tmp);
             }
+
             date.setVisible(false);
             datetime.setVisible(true);
 
