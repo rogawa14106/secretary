@@ -186,7 +186,7 @@ public class ScheduleEditor extends Dialog {
     private void openScheduleForm(Schedule schedule) {
         // 新規作成のときはデフォルトの時間をセットする
         if (schedule.getId() == null) {
-            LocalDateTime baseDateTime = this.date.atTime(LocalTime.now());
+            LocalDateTime baseDateTime = this.date.atTime(LocalTime.now()).withMinute(0);
             schedule.setDatetime(baseDateTime);
             schedule.setEndDatetime(baseDateTime.plusHours(1));
         }

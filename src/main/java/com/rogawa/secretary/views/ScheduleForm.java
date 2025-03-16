@@ -69,16 +69,15 @@ public class ScheduleForm extends Dialog {
         binder.forField(title).bind(Schedule::getTitle, Schedule::setTitle);
         binder.forField(isAllDay).bind(Schedule::getIsAllDay, Schedule::setIsAllDay);
         binder.forField(date).bind(
-                (schedule) -> {
+                (schedule) -> { // getter
                     if (schedule.getDatetime() != null) {
-                        LocalDateTime localDateTime = schedule.getDatetime();
-                        LocalDate localDate = localDateTime.toLocalDate();
+                        LocalDate localDate = schedule.getDatetime().toLocalDate();
                         return localDate;
                     } else {
                         return null;
                     }
                 },
-                (schedule, date) -> {
+                (schedule, date) -> { // setter
                     if (date != null) {
                         LocalDateTime localDateTime = date.atStartOfDay();
                         schedule.setDatetime(localDateTime);
@@ -87,16 +86,15 @@ public class ScheduleForm extends Dialog {
                     }
                 });
         binder.forField(endDate).bind(
-                (schedule) -> {
+                (schedule) -> { // getter
                     if (schedule.getEndDatetime() != null) {
-                        LocalDateTime localDateTime = schedule.getEndDatetime();
-                        LocalDate localDate = localDateTime.toLocalDate();
+                        LocalDate localDate = schedule.getEndDatetime().toLocalDate();
                         return localDate;
                     } else {
                         return null;
                     }
                 },
-                (schedule, endDate) -> {
+                (schedule, endDate) -> { // setter
                     if (endDate != null) {
                         LocalDateTime localDateTime = endDate.atStartOfDay();
                         schedule.setEndDatetime(localDateTime);
@@ -118,6 +116,10 @@ public class ScheduleForm extends Dialog {
         // フォームを開いたときに値がセットされているときのみ、deleteボタンが見えるように設計する(編集時など)
         deleteButton.setVisible(false);
 
+        // ダイアログ外のスペースをクリック時に閉じないようにする
+        // warning フォームを閉じたときにキャンセルイベントを発火しないとスケジュールの入力が保持されてしまうため
+        this.setCloseOnOutsideClick(false);
+
         // UIを作成する
         createUI();
     }
@@ -133,7 +135,7 @@ public class ScheduleForm extends Dialog {
         isAllDay.setLabel("終日");
         // 終日予定かどうかによって、日付入力か日時入力かが変わるようにする。
         isAllDay.addValueChangeListener(e -> {
-            toggleDateTimeForm(isAllDay.getValue());
+            toggleDateTimeForm(e.getValue());
         });
 
         // 開始日入力欄の設定
@@ -149,9 +151,6 @@ public class ScheduleForm extends Dialog {
         // 日時入力欄の設定
         endDatetime.setStep(Duration.ofMinutes(30));
         endDatetime.setLabel("終了日時*");
-
-        // 日付/日時入力の表示を決定
-        toggleDateTimeForm(isAllDay.getValue());
 
         // 説明入力欄の設定
         int CHAR_LIMIT = 140;
@@ -199,24 +198,40 @@ public class ScheduleForm extends Dialog {
 
     // 終日予定かどうかによってフォームを変えるメソッド
     private void toggleDateTimeForm(Boolean isAllDay) {
+        System.out.println(isAllDay);
+        // 表示したフォームには値を入れ、
+        // 非表示にしたフォームは値をクリアする
         if (isAllDay) {
             // 終日予定がTrueの場合は 日付入力フォームを表示
-            // 非表示にしたフォームは値をnullに設定する
-            datetime.setVisible(false);
-            endDatetime.setVisible(false);
-            datetime.setValue(null);
-            endDatetime.setValue(null);
+            if (datetime.getValue() != null) {
+                date.setValue(datetime.getValue().toLocalDate());
+                datetime.clear();
+            }
 
+            if (endDatetime.getValue() != null) {
+                endDate.setValue(endDatetime.getValue().toLocalDate());
+                endDatetime.clear();
+            }
+
+            datetime.setVisible(false);
             date.setVisible(true);
+
+            endDatetime.setVisible(false);
             endDate.setVisible(true);
         } else {
             // 終日予定でない場合は日時入力フォームを表示
-            // 非表示にしたフォームは値をnullに設定する
+            if (date.getValue() != null) {
+                datetime.setValue(date.getValue().atTime(12, 0));
+                date.clear();
+            }
+            if (endDate.getValue() != null) {
+                endDatetime.setValue(endDate.getValue().atTime(13, 0));
+                endDate.clear();
+            }
             date.setVisible(false);
-            endDate.setVisible(false);
-            date.setValue(null);
-            endDate.setValue(null);
             datetime.setVisible(true);
+
+            endDate.setVisible(false);
             endDatetime.setVisible(true);
         }
     }
@@ -262,10 +277,14 @@ public class ScheduleForm extends Dialog {
     // フォームを開きたいときはnullではなく必ずScheduleインスタンスを渡す
     public void setSchedule(Schedule schedule) {
         binder.setBean(schedule);
+        // 日付/日時入力の表示を決定
+        toggleDateTimeForm(isAllDay.getValue());
+
         if (Objects.nonNull(schedule)) {
             title.focus();
 
             // IDが入っていなかったら、新規作成用のフォームにする
+            // 削除ボタンの表示設定
             this.deleteButton.setVisible(schedule.getId() != null);
         }
     }
