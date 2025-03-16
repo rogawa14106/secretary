@@ -17,16 +17,19 @@ public class MainView extends AppLayout {
     // private final ScheduleRepository repo;
     private final Header header;
     private final Calender calender;
+    private final ScheduleForm scheduleForm;
 
     private LocalDate calenderMonth;
     private static final DayOfWeek FIXED_DAY_OF_WEEK = DayOfWeek.SUNDAY; // カレンダーの週頭にする曜日
-    // private static final DayOfWeek FIXED_DAY_OF_WEEK = DayOfWeek.MONDAY;
 
-    public MainView(/* ScheduleRepository repo, */ Header header, Calender calender) {
+    public MainView(Header header, Calender calender, ScheduleForm scheduleForm) {
 
         // this.repo = repo;
         this.header = header;
         this.calender = calender;
+        this.scheduleForm = scheduleForm;
+
+        // カレンダーの月を今日に設定
         this.calenderMonth = LocalDate.now();
 
         // テーマをダークに設定
@@ -34,12 +37,11 @@ public class MainView extends AppLayout {
 
         // ヘッダーを配置
         addToNavbar(true, this.header.createHeader());
-        // ヘッダのタイトルにテキストをセット
-        setHeaderDate();
-
         // カレンダーを配置
         setContent(this.calender);
-        this.calender.initCalender(this.calenderMonth, FIXED_DAY_OF_WEEK);
+
+        // カレンダーを初期化
+        changeViewMonth(this.calenderMonth);
 
         // データ更新用ハンドラを各コンポーネントに追加
         // ヘッダの新規作成ボタンから予定を作成した時
@@ -60,7 +62,6 @@ public class MainView extends AppLayout {
         this.header.addSelectMonthListener(c -> {
             changeViewMonth(c.getValue());
         });
-
         // カレンダで予定情報を更新した時
         this.calender.addUpdateListener(c -> {// 作成したカレンダーのIDをredrawContentに渡したい
             initCalender();
@@ -78,9 +79,6 @@ public class MainView extends AppLayout {
 
     // ヘッダの月を変更する
     private void setHeaderDate() {
-        // String headerTitle =
-        // DateTimeFormatter.ofPattern("yyyy年M月").format(this.calenderMonth);
-        // this.header.setViewTitle(headerTitle);
         this.header.setCalenderMonth(this.calenderMonth);
     }
 
