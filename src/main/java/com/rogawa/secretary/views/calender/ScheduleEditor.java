@@ -32,10 +32,18 @@ public class ScheduleEditor extends Dialog {
     private List<Schedule> schedules;
     private LocalDate date;
 
-    public ScheduleEditor(ScheduleServiceImpl service/* , List<Schedule> schedules */) {
+    public ScheduleEditor(ScheduleServiceImpl service, ScheduleForm scheduleForm) {
         this.service = service;
-        this.scheduleForm = createScheduleForm();
-        // this.schedules = schedules;
+        this.scheduleForm = scheduleForm;
+        // スケジュール新規作成/更新/削除時の動作
+        scheduleForm.addChangeListener(c -> {
+            fireEvent(new UpdateEvent(this));
+            scheduleForm.close();
+        });
+        scheduleForm.addCancelListener(c -> {
+            fireEvent(new UpdateEvent(this));
+            scheduleForm.close();
+        });
 
         // 自身のスタイルを設定
         this.setWidth("98vw");
@@ -43,22 +51,11 @@ public class ScheduleEditor extends Dialog {
         this.setTop("55%");
     }
 
-    // 日付をセットする
-    public void setDate(LocalDate date) {
+    public void initScheduleEditor(LocalDate date, List<Schedule> schedules) {
+        // 値を設定
         this.date = date;
-    };
+        this.schedules = schedules;
 
-    // スケジュールを追加する
-    public void addSchedule(Schedule schedule) {
-        this.schedules.add(schedule);
-    };
-
-    // すべてのスケジュールを削除する
-    public void removeAllSchedules() {
-        this.schedules = new ArrayList<>();
-    }
-
-    public void initScheduleEditor() {
         // ダイアログのレイアウトを作る
         placeItems();
     }
@@ -185,9 +182,6 @@ public class ScheduleEditor extends Dialog {
         addBtnItem.addClickListener(e -> {
             // 新規作成フォームを表示する
             openScheduleForm(new Schedule());
-            // TODO このスケジュールの日付&&今の時間が入った状態でスケジュールが開かれるようにする
-            // LocalDateTime baseDateTime = this.date.atTime(LocalTime.now());
-            // openScheduleForm(this.service.createDefaultSchedule(baseDateTime));
         });
 
         return addBtnItem;
@@ -195,16 +189,15 @@ public class ScheduleEditor extends Dialog {
 
     // スケジュールフォームを作成する
     private ScheduleForm createScheduleForm() {
-        ScheduleForm scheduleForm = new ScheduleForm(service);
+        // ScheduleForm scheduleForm = new ScheduleForm(service);
         // スケジュール新規作成/更新/削除時の動作
         scheduleForm.addChangeListener(c -> {
             fireEvent(new UpdateEvent(this));
-            initScheduleEditor(); // ScheduleEditorの要素を再描画
             scheduleForm.close();
         });
         scheduleForm.addCancelListener(c -> {
             fireEvent(new UpdateEvent(this));
-            initScheduleEditor(); // ScheduleEditorの要素を描画
+            // initScheduleEditor(this.date, this.schedules); // ScheduleEditorの要素を描画
             scheduleForm.close();
         });
         return scheduleForm;

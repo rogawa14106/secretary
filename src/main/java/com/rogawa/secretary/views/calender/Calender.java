@@ -27,6 +27,8 @@ public class Calender extends VerticalLayout {
     private final ScheduleServiceImpl service;
     private final ScheduleRepository repo;
 
+    private final ScheduleEditor scheduleEditor;
+
     // 定数
     private static final Integer WEEK_DAY_CNT = 7; // 一週間の日数
     private static final Integer MAX_DRAWING_DATES = 42; // カレンダーに描画する日付数の最大値
@@ -36,22 +38,39 @@ public class Calender extends VerticalLayout {
     private LocalDate[] drawingDates; // 描画する日付の配列
     private List<Schedule> drawingSchedules = new ArrayList<Schedule>(); // 描画するスケジュールのリスト
     private List<DateCard> dateCards = new ArrayList<DateCard>(); // カレンダーの各日付のレイアウトのリスト
+    private DateCard selectedDateCard; // クリックされたDateCard
     private LocalDate targetYearMonth; // カレンダーの月
     private DayOfWeek fixedDayOfWeek; // 週頭固定曜日
 
-    public Calender(ScheduleRepository repo, ScheduleServiceImpl service) {
+    public Calender(ScheduleRepository repo, ScheduleServiceImpl service, ScheduleEditor scheduleEditor) {
         this.repo = repo;
         this.service = service;
+        this.scheduleEditor = scheduleEditor;
 
         // 日付ぶんのDataCardを作成してリストに追加する
         for (Integer i = 0; i < MAX_DRAWING_DATES; i++) {
-            DateCard dateCard = new DateCard("calc(100% / " + WEEK_DAY_CNT + ")", this.service);
-            // スケジュール作成/更新/削除/キャンセル時にdateCardで行う動作
-            dateCard.addUpdateListener(e -> {
-                fireEvent(new UpdateEvent(this));
+            DateCard dateCard = new DateCard("calc(100% / " + WEEK_DAY_CNT + ")", this.service, scheduleEditor);
+            // dateCardクリック時の動作
+            dateCard.addClickListener(e -> {
+                // クリックされたDateCardをカレンダークラスに保持しておく
+                this.selectedDateCard = dateCard;
             });
+
             this.dateCards.add(dateCard);
         }
+
+        // 予定情報更新時の動作を定義
+        scheduleEditor.addUpdateListener(e -> {
+            System.out.println("### updateEvent fired (scheduleEditor)");
+
+            // カレンダー情報がアップデートされる ←event発火時の動作はMainViewで設定
+            fireEvent(new UpdateEvent(this));
+
+            // アップデートされた情報をもとにscheduleEditorを再描画する
+            LocalDate date = this.selectedDateCard.getDate();
+            List<Schedule> schedules = this.selectedDateCard.getSchedules();
+            this.scheduleEditor.initScheduleEditor(date, schedules);
+        });
     }
 
     public void initCalender(LocalDate targetYearMonth, DayOfWeek fixedDayOfWeek) {
@@ -199,12 +218,6 @@ public class Calender extends VerticalLayout {
         }
 
         return firstDayOfCalender;
-    }
-
-    // TODO
-    // initCalenderよりも再描画範囲を狭めたい
-    public void updateSchedule() {
-        // スケジュールを再取得してカレンダーを再描画
     }
 
     // イベントの設定を呼び出し側に譲渡する
