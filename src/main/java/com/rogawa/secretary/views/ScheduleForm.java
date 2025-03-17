@@ -27,7 +27,6 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 
 @SpringComponent
 @UIScope
@@ -221,7 +220,7 @@ public class ScheduleForm extends Dialog {
         System.out.println("#### Attempt to save schedule");
         binder.getBean().logWrite();
         try {
-            if (binder.validate().isOk()) { // この分岐、いらなそう FIXME
+            if (binder.isValid()) { // binderにバリデーションが設定されていないのでこの分岐意味ない FIXME
                 service.createSchedule(binder.getBean());
                 setSchedule(null);
                 fireEvent(new ChangeEvent(this));
