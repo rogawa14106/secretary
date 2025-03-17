@@ -27,6 +27,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 
 @SpringComponent
 @UIScope
@@ -198,28 +199,18 @@ public class ScheduleForm extends Dialog {
 
     // 終日予定かどうかによってフォームを変えるメソッド
     private void toggleDateTimeForm(Boolean isAllDay) {
-        // if (isAllDay) {
-        // datetime.setVisible(false);
-        // date.setVisible(true);
-        //
-        // endDatetime.setVisible(false);
-        // endDate.setVisible(true);
-        // } else {
-        // date.setVisible(false);
-        // datetime.setVisible(true);
-        //
-        // endDate.setVisible(false);
-        // endDatetime.setVisible(true);
-        // }
-        datetime.setVisible(!isAllDay); // 開始日時入力欄
-        endDatetime.setVisible(!isAllDay); // 終了日時入力欄
+        // 終日予定の時に表示する
         date.setVisible(isAllDay); // 開始日入力欄
         endDate.setVisible(isAllDay); // 終了日入力欄
 
+        // 終日予定ではない時に表示する
+        datetime.setVisible(!isAllDay); // 開始日時入力欄
+        endDatetime.setVisible(!isAllDay); // 終了日時入力欄
     }
 
     // キャンセル時の動作
     private void cancel() {
+        System.out.println("#### Attempt to cancel the schedule creation");
         setSchedule(null);
         fireEvent(new CancelEvent(this));
         System.out.println("#### Schedule creation was canceled");
@@ -227,7 +218,7 @@ public class ScheduleForm extends Dialog {
 
     // スケジュール新規作成、編集
     private void save() {
-        System.out.println("#### Try to save schedules");
+        System.out.println("#### Attempt to save schedule");
         binder.getBean().logWrite();
         try {
             if (binder.validate().isOk()) { // この分岐、いらなそう FIXME
@@ -237,18 +228,19 @@ public class ScheduleForm extends Dialog {
             }
             System.out.println("#### Schedule saved");
             Notification notification = Notification.show("予定を保存したよ", 2000, Position.TOP_END);
-            notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
         } catch (Exception e) {
             Notification notification = Notification.show("「*」がついている項目は必須だよ", 2000, Position.TOP_END);
-            notification.addThemeVariants(NotificationVariant.LUMO_WARNING);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 
-            System.out.println("#### An error occured when saving schedule.");
-            System.out.println(e);
+            System.err.println("#### Failed to save schedule");
+            System.err.println(e);
         }
     }
 
     // スケジュール削除
     private void delete() {
+        System.out.println("#### Attempt to delete schedule");
         service.deleteSchedule(binder.getBean().getId());
         setSchedule(null);
         fireEvent(new ChangeEvent(this));

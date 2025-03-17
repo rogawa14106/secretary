@@ -40,7 +40,6 @@ public class ScheduleEditor extends Dialog {
             scheduleForm.close();
         });
         scheduleForm.addCancelListener(c -> {
-            fireEvent(new UpdateEvent(this));
             scheduleForm.close();
         });
 
