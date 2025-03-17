@@ -7,6 +7,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 import com.rogawa.secretary.model.Schedule;
+import com.rogawa.secretary.service.ScheduleServiceImpl;
 import com.rogawa.secretary.views.ScheduleForm;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -25,11 +26,13 @@ import com.vaadin.flow.shared.Registration;
 @UIScope
 public class ScheduleEditor extends Dialog {
 
+    private final ScheduleServiceImpl service;
     private final ScheduleForm scheduleForm;
     private List<Schedule> schedules;
     private LocalDate date;
 
-    public ScheduleEditor(ScheduleForm scheduleForm) {
+    public ScheduleEditor(ScheduleServiceImpl service, ScheduleForm scheduleForm) {
+        this.service = service;
         this.scheduleForm = scheduleForm;
         // スケジュール新規作成/更新/削除時の動作
         scheduleForm.addChangeListener(c -> {
@@ -184,13 +187,18 @@ public class ScheduleEditor extends Dialog {
 
     // スケジュールフォームに値をセットして開く
     private void openScheduleForm(Schedule schedule) {
+        // 参照を渡すのではなくディープコピーする
+        // フォーム入力時の変更を元インスタンスに反映させないようにする
+        Schedule scheduleClone = this.service.cloneSchedule(schedule);
+
         // 新規作成のときはデフォルトの時間をセットする
-        if (schedule.getId() == null) {
+        if (scheduleClone.getId() == null) {
             LocalDateTime baseDateTime = this.date.atTime(LocalTime.now()).withMinute(0);
-            schedule.setDatetime(baseDateTime);
-            schedule.setEndDatetime(baseDateTime.plusHours(1));
+            scheduleClone.setDatetime(baseDateTime);
+            scheduleClone.setEndDatetime(baseDateTime.plusHours(1));
         }
-        scheduleForm.setSchedule(schedule);
+
+        scheduleForm.setSchedule(scheduleClone);
         scheduleForm.open();
     }
 

@@ -40,7 +40,7 @@ public class MainView extends AppLayout {
         // データ更新用ハンドラを各コンポーネントに追加
         // ヘッダの新規作成ボタンから予定を作成した時
         this.header.addUpdateListener(c -> {// 作成したカレンダーのIDをredrawContentに渡したい
-            initCalender();
+            // initCalender();
         });
         // ヘッダの前の月へボタンを押した時
         this.header.addClickPrivBtnListener(c -> {

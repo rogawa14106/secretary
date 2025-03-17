@@ -118,7 +118,7 @@ public class ScheduleForm extends Dialog {
 
         // ダイアログ外のスペースをクリック時に閉じないようにする
         // warning フォームを閉じたときにキャンセルイベントを発火しないとスケジュールの入力が保持されてしまうため
-        this.setCloseOnOutsideClick(false);
+        // this.setCloseOnOutsideClick(false);
 
         // UIを作成する
         createUI();
@@ -198,47 +198,24 @@ public class ScheduleForm extends Dialog {
 
     // 終日予定かどうかによってフォームを変えるメソッド
     private void toggleDateTimeForm(Boolean isAllDay) {
-        System.out.println(isAllDay);
-        // 表示したフォームには値を入れ、
-        // 非表示にしたフォームは値をクリアする
-        if (isAllDay) {
-            // 終日予定がTrueの場合は 日付入力フォームを表示
-            if (datetime.getValue() != null) {
-                LocalDate tmp = datetime.getValue().toLocalDate();
-                datetime.clear();
-                date.setValue(tmp);
-            }
+        // if (isAllDay) {
+        // datetime.setVisible(false);
+        // date.setVisible(true);
+        //
+        // endDatetime.setVisible(false);
+        // endDate.setVisible(true);
+        // } else {
+        // date.setVisible(false);
+        // datetime.setVisible(true);
+        //
+        // endDate.setVisible(false);
+        // endDatetime.setVisible(true);
+        // }
+        datetime.setVisible(!isAllDay); // 開始日時入力欄
+        endDatetime.setVisible(!isAllDay); // 終了日時入力欄
+        date.setVisible(isAllDay); // 開始日入力欄
+        endDate.setVisible(isAllDay); // 終了日入力欄
 
-            if (endDatetime.getValue() != null) {
-                LocalDate tmp = endDatetime.getValue().toLocalDate();
-                endDatetime.clear();
-                endDate.setValue(tmp);
-            }
-
-            datetime.setVisible(false);
-            date.setVisible(true);
-
-            endDatetime.setVisible(false);
-            endDate.setVisible(true);
-        } else {
-            // 終日予定でない場合は日時入力フォームを表示
-            if (date.getValue() != null) {
-                LocalDateTime tmp = date.getValue().atTime(12, 0);
-                date.clear();
-                datetime.setValue(tmp);
-            }
-            if (endDate.getValue() != null) {
-                LocalDateTime tmp = endDate.getValue().atTime(13, 0);
-                endDate.clear();
-                endDatetime.setValue(tmp);
-            }
-
-            date.setVisible(false);
-            datetime.setVisible(true);
-
-            endDate.setVisible(false);
-            endDatetime.setVisible(true);
-        }
     }
 
     // キャンセル時の動作
@@ -281,7 +258,9 @@ public class ScheduleForm extends Dialog {
     // 外部からモデルを設定可能にする。
     // フォームを開きたいときはnullではなく必ずScheduleインスタンスを渡す
     public void setSchedule(Schedule schedule) {
+        // 値をバインド
         binder.setBean(schedule);
+
         // 日付/日時入力の表示を決定
         toggleDateTimeForm(isAllDay.getValue());
 

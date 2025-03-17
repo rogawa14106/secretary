@@ -116,4 +116,17 @@ public class ScheduleServiceImpl implements ScheduleService {
         defaultSchedule.setEndDatetime(baseDateTime.plusHours(1));
         return defaultSchedule;
     }
+
+    public Schedule cloneSchedule(Schedule schedule) {
+        Schedule scheduleClone = new Schedule();
+        scheduleClone.setId(schedule.getId());
+        scheduleClone.setTitle(schedule.getTitle());
+        scheduleClone.setOwner(schedule.getOwner());
+        scheduleClone.setIsAllDay(schedule.getIsAllDay());
+        scheduleClone.setDatetime(schedule.getDatetime());
+        scheduleClone.setEndDatetime(schedule.getEndDatetime());
+        scheduleClone.setDescription(schedule.getDescription());
+        scheduleClone.setUpdateTime(schedule.getUpdateTime());
+        return scheduleClone;
+    }
 }
