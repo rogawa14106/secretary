@@ -31,7 +31,7 @@ public class Schedule {
 
     // 予定の開始日時
     @JsonFormat(pattern = "yyyy/MM/dd-HH:mm") // 入出力フォーマット
-    private LocalDateTime datetime;
+    private LocalDateTime startDatetime;
 
     // 予定の終了日時
     @JsonFormat(pattern = "yyyy/MM/dd-HH:mm") // 入出力フォーマット
@@ -55,7 +55,7 @@ public class Schedule {
         System.out.println("    id: " + id);
         System.out.println("    title: " + title);
         System.out.println("    isAllDay: " + isAllDay);
-        System.out.println("    datetime: " + datetime);
+        System.out.println("    startDatetime: " + startDatetime);
         System.out.println("    endDatetime: " + endDatetime);
         System.out.println("    owner: " + owner);
         System.out.println("    description: " + description);

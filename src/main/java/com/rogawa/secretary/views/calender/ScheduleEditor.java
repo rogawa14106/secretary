@@ -130,7 +130,7 @@ public class ScheduleEditor extends Dialog {
         }
 
         // 開始/終了日を取得
-        LocalDateTime startDate = schedule.getDatetime();
+        LocalDateTime startDate = schedule.getStartDatetime();
         LocalDateTime endDate = schedule.getEndDatetime();
 
         // 今日中に開始/終了する予定かどうかの真偽値
@@ -193,7 +193,7 @@ public class ScheduleEditor extends Dialog {
         // 新規作成のときはデフォルトの時間をセットする
         if (scheduleClone.getId() == null) {
             LocalDateTime baseDateTime = this.date.atTime(LocalTime.now()).withMinute(0);
-            scheduleClone.setDatetime(baseDateTime);
+            scheduleClone.setStartDatetime(baseDateTime);
             scheduleClone.setEndDatetime(baseDateTime.plusHours(1));
         }
 

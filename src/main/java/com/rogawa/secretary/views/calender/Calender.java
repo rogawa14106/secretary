@@ -147,7 +147,7 @@ public class Calender extends VerticalLayout {
             // カレンダーの最初の日とスケジュールの開始日を比較して、入れるべき日付オブジェクトのインデックスを作成する
             Schedule schedule = drawingSchedules.get(i);
             // スケジュールの開始日と終了日を取得
-            LocalDate scheduleStartDate = schedule.getDatetime().toLocalDate();
+            LocalDate scheduleStartDate = schedule.getStartDatetime().toLocalDate();
             LocalDate scheduleEndDate = schedule.getEndDatetime().toLocalDate();
             // カレンダーの最初の日から何日目に予定を入れればよいか計算する
             Integer startIdx = scheduleStartDate.getDayOfYear() - firstDayOfCalender.getDayOfYear();

@@ -61,9 +61,9 @@ public class ScheduleServiceImpl implements ScheduleService {
         Boolean newIsAllDay = requestBody.getIsAllDay() == null ? schedule.getIsAllDay() : requestBody.getIsAllDay();
         schedule.setIsAllDay(newIsAllDay);
 
-        LocalDateTime newDatetime = requestBody.getDatetime() == null ? schedule.getDatetime()
-                : requestBody.getDatetime();
-        schedule.setDatetime(newDatetime);
+        LocalDateTime newDatetime = requestBody.getStartDatetime() == null ? schedule.getStartDatetime()
+                : requestBody.getStartDatetime();
+        schedule.setStartDatetime(newDatetime);
 
         LocalDateTime newEndDateTime = requestBody.getEndDatetime() == null ? schedule.getEndDatetime()
                 : requestBody.getEndDatetime();
@@ -168,7 +168,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         // datetime: ベースになる日付
         // endDatetime: ベースになる日付+1h
         Schedule defaultSchedule = new Schedule();
-        defaultSchedule.setDatetime(baseDateTime);
+        defaultSchedule.setStartDatetime(baseDateTime);
         defaultSchedule.setEndDatetime(baseDateTime.plusHours(1));
         return defaultSchedule;
     }
@@ -179,7 +179,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         scheduleClone.setTitle(schedule.getTitle());
         scheduleClone.setOwner(schedule.getOwner());
         scheduleClone.setIsAllDay(schedule.getIsAllDay());
-        scheduleClone.setDatetime(schedule.getDatetime());
+        scheduleClone.setStartDatetime(schedule.getStartDatetime());
         scheduleClone.setEndDatetime(schedule.getEndDatetime());
         scheduleClone.setDescription(schedule.getDescription());
         scheduleClone.setUpdateTime(schedule.getUpdateTime());

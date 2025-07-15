@@ -3,6 +3,7 @@ package com.rogawa.secretary.views;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Objects;
 
 import com.rogawa.secretary.model.Schedule;
@@ -41,7 +42,7 @@ public class ScheduleForm extends Dialog {
     // 終日予定かどうか
     Checkbox isAllDay = new Checkbox();
     // 予定の開始日時
-    DateTimePicker datetime = new DateTimePicker();
+    DateTimePicker startDatetime = new DateTimePicker();
     // 予定の終了日時
     DateTimePicker endDatetime = new DateTimePicker();
     // 予定の開始日
@@ -70,23 +71,26 @@ public class ScheduleForm extends Dialog {
         binder.forField(isAllDay).bind(Schedule::getIsAllDay, Schedule::setIsAllDay);
         binder.forField(date).bind(
                 (schedule) -> { // getter
-                    if (schedule.getDatetime() != null) {
-                        LocalDate localDate = schedule.getDatetime().toLocalDate();
+                    // 型を変換
+                    if (schedule.getStartDatetime() != null) {
+                        LocalDate localDate = schedule.getStartDatetime().toLocalDate();
                         return localDate;
                     } else {
                         return null;
                     }
                 },
                 (schedule, date) -> { // setter
+                    // 型を変換
                     if (date != null) {
                         LocalDateTime localDateTime = date.atStartOfDay();
-                        schedule.setDatetime(localDateTime);
+                        schedule.setStartDatetime(localDateTime);
                     } else {
-                        schedule.setDatetime(null);
+                        schedule.setStartDatetime(null);
                     }
                 });
         binder.forField(endDate).bind(
                 (schedule) -> { // getter
+                    // 型を変換
                     if (schedule.getEndDatetime() != null) {
                         LocalDate localDate = schedule.getEndDatetime().toLocalDate();
                         return localDate;
@@ -95,6 +99,7 @@ public class ScheduleForm extends Dialog {
                     }
                 },
                 (schedule, endDate) -> { // setter
+                    // 型を変換
                     if (endDate != null) {
                         LocalDateTime localDateTime = endDate.atStartOfDay();
                         schedule.setEndDatetime(localDateTime);
@@ -102,7 +107,7 @@ public class ScheduleForm extends Dialog {
                         schedule.setEndDatetime(null);
                     }
                 });
-        binder.forField(datetime).bind(Schedule::getDatetime, Schedule::setDatetime);
+        binder.forField(startDatetime).bind(Schedule::getStartDatetime, Schedule::setStartDatetime);
         binder.forField(endDatetime).bind(Schedule::getEndDatetime, Schedule::setEndDatetime);
         binder.forField(owner).bind(Schedule::getOwner, Schedule::setOwner);
         binder.forField(description).bind(Schedule::getDescription, Schedule::setDescription);
@@ -144,16 +149,36 @@ public class ScheduleForm extends Dialog {
         // 終了日入力欄の設定
         endDate.setLabel("終了日*");
 
-        // 日時入力欄の設定
-        datetime.setStep(Duration.ofMinutes(30));
-        datetime.setLabel("開始日時*");
+        // 開始日時入力欄の設定
+        startDatetime.setStep(Duration.ofMinutes(30));
+        startDatetime.setLabel("開始日時*");
+        // startDatetime.addValueChangeListener(e -> {
+        // // FIXME binder側で設定したほうがいい？
+        // // 開始時刻入力時、終了時刻が開始時刻より前の時間になっていたら、終了時刻を開始時刻の30分後に設定する。
+        // LocalDateTime currentStartDatetime = e.getValue();
+        // LocalDateTime currentEndDatetime = binder.getBean().getEndDatetime();
+        // if (!currentStartDatetime.isBefore(currentEndDatetime)) { //
+        // endDateがstartDateより早くなっていたら、30分後に設定する
+        // endDatetime.setValue(currentStartDatetime.plusMinutes(30));
+        // }
+        // });
 
-        // 日時入力欄の設定
+        // 終了日時入力欄の設定
         endDatetime.setStep(Duration.ofMinutes(30));
         endDatetime.setLabel("終了日時*");
+        // endDatetime.addValueChangeListener(e -> {
+        // // FIXME
+        // // 終了時刻入力時、終了時刻が開始時刻より前の時間になっていたら、開始時刻を開始時刻の30分前に設定する。
+        // LocalDateTime currentStartDatetime = binder.getBean().getStartDatetime();
+        // LocalDateTime currentEndDatetime = e.getValue();
+        // if (!currentStartDatetime.isBefore(currentEndDatetime)) { //
+        // endDateがstartDateより遅くなっていたら、30分前に設定する
+        // startDatetime.setValue(currentEndDatetime.minusMinutes(30));
+        // }
+        // });
 
         // 説明入力欄の設定
-        int CHAR_LIMIT = 140;
+        int CHAR_LIMIT = 200;
         description.setLabel("説明");
         description.setMaxLength(CHAR_LIMIT);
         description.setValueChangeMode(ValueChangeMode.EAGER);
@@ -165,7 +190,7 @@ public class ScheduleForm extends Dialog {
         owner.setLabel("予定の所有者*");
 
         // フォームに入力欄を配置
-        formLayout.add(title, owner, isAllDay, datetime, date, endDatetime, endDate, description);
+        formLayout.add(title, owner, isAllDay, startDatetime, date, endDatetime, endDate, description);
 
         // フォームのレイアウトを設定
         formLayout.setResponsiveSteps(
@@ -203,7 +228,7 @@ public class ScheduleForm extends Dialog {
         endDate.setVisible(isAllDay); // 終了日入力欄
 
         // 終日予定ではない時に表示する
-        datetime.setVisible(!isAllDay); // 開始日時入力欄
+        startDatetime.setVisible(!isAllDay); // 開始日時入力欄
         endDatetime.setVisible(!isAllDay); // 終了日時入力欄
     }
 
