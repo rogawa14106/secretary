@@ -3,12 +3,15 @@ package com.rogawa.secretary.service;
 import com.rogawa.secretary.model.Schedule;
 import com.rogawa.secretary.repository.ScheduleRepository;
 
+import java.awt.Color;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -84,7 +87,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     // scheduleの所有者文字列からカラーコードを作成する
-    public String generateOwnerColorCode(String ownerTxt) {
+    public String _generateOwnerColorCode(String ownerTxt) {
         // カラーコードを取得できなかった時用に適当な初期値を設定しておく
         String ownerColorCode = "#524050";
 
@@ -104,6 +107,35 @@ public class ScheduleServiceImpl implements ScheduleService {
         }
 
         return ownerColorCode;
+    }
+
+    public String generateOwnerColorCode(String ownerTxt) {
+        // 所有者名からハッシュ値を取得
+        int hash = ownerTxt.hashCode();
+
+        // ハッシュ値から色相を決定
+        float hue = (hash & 0xFFFFFF) % 360;
+
+        // 彩度と明度を制限して、背景色が暗めになるように調整
+        float saturation = 0.6f + (Math.abs(hash) % 30) / 100f; // 0.6~0.9
+        float brightness = 0.2f + (Math.abs(hash / 2) % 30) / 100f; // 0.2~0.5
+
+        // HSBからColorへ変換
+        Color color = Color.getHSBColor(hue / 360f, saturation, brightness);
+
+        // カラーコードへ変換
+        String colorCode = String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
+
+        System.out.println(ownerTxt + colorCode);
+
+        // 特別に、特定の人だけ静的に変える(クソ実装)
+        if (colorCode == "#7B0E7D") {
+            colorCode = "#D2691E";
+        } else if (colorCode == "#381436") { // 祝日
+            colorCode = "#A52A2A";
+        }
+
+        return colorCode;
     }
 
     // デフォルト値を入れたスケジュールを作成する

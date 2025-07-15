@@ -25,28 +25,33 @@ public class ScheduleController {
         this.scheduleService = scheduleService;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @GetMapping("/api/v1/schedules")
     public ResponseEntity<List<Schedule>> getSchedules() {
         return new ResponseEntity(scheduleService.getSchedules(), HttpStatus.OK);
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @GetMapping("/api/v1/schedules/{id}")
     public ResponseEntity<Schedule> getSchedule(@PathVariable Long id) {
         return new ResponseEntity(scheduleService.getSchedule(id), HttpStatus.OK);
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Transactional
     @PostMapping("/api/v1/schedules")
     public ResponseEntity<Schedule> createSchedule(@Validated @RequestBody Schedule schedule) {
         return new ResponseEntity(scheduleService.createSchedule(schedule), HttpStatus.CREATED);
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Transactional
     @PatchMapping("/api/v1/schedules/{id}")
     public ResponseEntity<Schedule> updateSchedule(@RequestBody Schedule schedule, @PathVariable Long id) {
         return new ResponseEntity(scheduleService.updateSchedule(id, schedule), HttpStatus.CREATED);
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Transactional
     @DeleteMapping("/api/v1/schedules/{id}")
     public ResponseEntity<HttpStatus> deleteSchedule(@PathVariable Long id) {
