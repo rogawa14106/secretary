@@ -13,6 +13,7 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -50,7 +51,8 @@ public class ScheduleForm extends Dialog {
     // 予定の終了日
     DatePicker endDate = new DatePicker();
     // 予定の所有者
-    TextField owner = new TextField();
+    // TextField owner = new TextField();
+    ComboBox<String> owner = new ComboBox<>();
     // 予定の説明
     TextArea description = new TextArea();
 
@@ -107,8 +109,32 @@ public class ScheduleForm extends Dialog {
                         schedule.setEndDatetime(null);
                     }
                 });
-        binder.forField(startDatetime).bind(Schedule::getStartDatetime, Schedule::setStartDatetime);
-        binder.forField(endDatetime).bind(Schedule::getEndDatetime, Schedule::setEndDatetime);
+        binder.forField(startDatetime).bind(Schedule::getStartDatetime,
+                (schedule, startDatetime) -> {
+                    schedule.setStartDatetime(startDatetime);
+
+                    // endDatetimeがstartDatetimeより早くなっていたら、endDatetimeをstartDatetimeの30分後に設定する
+                    LocalDateTime currentStartDatetime = startDatetime;
+                    LocalDateTime currentEndDatetime = schedule.getEndDatetime();
+                    if (!currentStartDatetime.isBefore(currentEndDatetime)) {
+                        LocalDateTime validDatetime = currentStartDatetime.plusMinutes(30);
+                        endDatetime.setValue(validDatetime);
+                        schedule.setEndDatetime(validDatetime);
+                    }
+                });
+        binder.forField(endDatetime).bind(Schedule::getEndDatetime,
+                (schedule, endDatetime) -> {
+                    schedule.setEndDatetime(endDatetime);
+
+                    // endDatetimeがstartDatetimeより早くなっていたら、startDatetimeをendDatetimeの30分前にに設定する
+                    LocalDateTime currentStartDatetime = schedule.getStartDatetime();
+                    LocalDateTime currentEndDatetime = endDatetime;
+                    if (!currentStartDatetime.isBefore(currentEndDatetime)) {
+                        LocalDateTime validDatetime = currentEndDatetime.minusMinutes(30);
+                        startDatetime.setValue(validDatetime);
+                        schedule.setStartDatetime(validDatetime);
+                    }
+                });
         binder.forField(owner).bind(Schedule::getOwner, Schedule::setOwner);
         binder.forField(description).bind(Schedule::getDescription, Schedule::setDescription);
 
@@ -152,30 +178,10 @@ public class ScheduleForm extends Dialog {
         // 開始日時入力欄の設定
         startDatetime.setStep(Duration.ofMinutes(30));
         startDatetime.setLabel("開始日時*");
-        // startDatetime.addValueChangeListener(e -> {
-        // // FIXME binder側で設定したほうがいい？
-        // // 開始時刻入力時、終了時刻が開始時刻より前の時間になっていたら、終了時刻を開始時刻の30分後に設定する。
-        // LocalDateTime currentStartDatetime = e.getValue();
-        // LocalDateTime currentEndDatetime = binder.getBean().getEndDatetime();
-        // if (!currentStartDatetime.isBefore(currentEndDatetime)) { //
-        // endDateがstartDateより早くなっていたら、30分後に設定する
-        // endDatetime.setValue(currentStartDatetime.plusMinutes(30));
-        // }
-        // });
 
         // 終了日時入力欄の設定
         endDatetime.setStep(Duration.ofMinutes(30));
         endDatetime.setLabel("終了日時*");
-        // endDatetime.addValueChangeListener(e -> {
-        // // FIXME
-        // // 終了時刻入力時、終了時刻が開始時刻より前の時間になっていたら、開始時刻を開始時刻の30分前に設定する。
-        // LocalDateTime currentStartDatetime = binder.getBean().getStartDatetime();
-        // LocalDateTime currentEndDatetime = e.getValue();
-        // if (!currentStartDatetime.isBefore(currentEndDatetime)) { //
-        // endDateがstartDateより遅くなっていたら、30分前に設定する
-        // startDatetime.setValue(currentEndDatetime.minusMinutes(30));
-        // }
-        // });
 
         // 説明入力欄の設定
         int CHAR_LIMIT = 200;
@@ -188,7 +194,9 @@ public class ScheduleForm extends Dialog {
 
         // 予定所有者欄の設定
         owner.setLabel("予定の所有者*");
-
+        owner.setItems("ななほ", "りょうま", "りょうまななほ");
+        owner.setAllowCustomValue(true);
+        // owner.setItemLabelGenerator(Country::getName);
         // フォームに入力欄を配置
         formLayout.add(title, owner, isAllDay, startDatetime, date, endDatetime, endDate, description);
 

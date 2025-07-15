@@ -15,6 +15,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.popover.Popover;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -113,10 +114,12 @@ public class Header extends HorizontalLayout {
         ListBox<LocalDate> monthSelector = new ListBox<>();
 
         // Itemの表示フォーマットを定義する
-        monthSelector.setItemLabelGenerator(date -> {
-            String month = date.format(DateTimeFormatter.ofPattern("yyyy年 M月"));
-            return month;
-        });
+        monthSelector.setRenderer(new ComponentRenderer<>(date -> {
+            Div listItem = new Div();
+            String monthTxt = date.format(DateTimeFormatter.ofPattern("yyyy年 M月"));
+            listItem.add(monthTxt);
+            return listItem;
+        }));
         // 月を選択したときのイベントを定義する
         monthSelector.addValueChangeListener(e -> {
             // Warning
